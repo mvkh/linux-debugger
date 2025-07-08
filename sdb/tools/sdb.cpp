@@ -7,6 +7,7 @@
 #include <editline/readline.h>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace {
     std::vector<std::string> split(std::string_view str, char delimiter)
