@@ -12,7 +12,7 @@ namespace {
     std::vector<std::string> split(std::string_view str, char delimiter)
     {
         std::vector<std::string> out{};
-        std::stringstream ss {std::string{str}};
+        std::stringstream ss{ std::string{str} };
         std::string item;
 
         while (std::getline(ss, item, delimiter)) {
@@ -125,7 +125,7 @@ int main (int argc, const char** argv)
     int options = 0;
     if (waitpid(pid, &wait_status, options) < 0)
     {
-        std::perror("waitpid failed.")
+        std::perror("waitpid failed.");
     }
 
     char* line = nullptr;
