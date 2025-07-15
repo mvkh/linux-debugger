@@ -23,5 +23,5 @@ TEST_CASE("process::launch success", "[process]")
 
 TEST_CASE("process::launch no such program", "[process]")
 {
-    REQUIRE_THROW_AS(process::launch("you_do_not_have_to_be_good"), sdb::error);
+    REQUIRE_THROWS_AS(process::launch("you_do_not_have_to_be_good"), sdb::error);
 }
