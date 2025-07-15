@@ -12,7 +12,8 @@
 #include <libsdb/error.hpp>
 #include <string.h>
 
-namespace {
+namespace 
+{
     std::vector<std::string> split(std::string_view str, char delimiter)
     {
         std::vector<std::string> out{};
