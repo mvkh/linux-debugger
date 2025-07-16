@@ -25,7 +25,7 @@ namespace sdb
             static constexpr unsigned read_fd = 0;
             static constexpr unsigned write_fd = 1;
             int fds_[2];
-    }
+    };
 }
 
 #endif
