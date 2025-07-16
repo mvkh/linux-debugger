@@ -154,22 +154,22 @@ namespace
                 auto value = process.get_registers().read(info);
                 fmt::print("{}:\t{}\n", info.name, std::visit(format, value));
 
-            } else if (args.size() == 3) {
-
-                try
-                {
-                    auto info = sdb::register_info_by_name(args[2]);
-                    auto value = process.get_registers().read(info);
-                    fmt::print("{}:\t{}\n", info.name, std::visit(format, value));
-
-                } catch (sdb::error &err) {
-
-                    std::cerr << "No such register\n";
-                }
-            } else {
-
-                print_help({"help","register"});
             }
+        } else if (args.size() == 3) {
+
+            try
+            {
+                auto info = sdb::register_info_by_name(args[2]);
+                auto value = process.get_registers().read(info);
+                fmt::print("{}:\t{}\n", info.name, std::visit(format, value));
+
+            } catch (sdb::error &err) {
+
+                std::cerr << "No such register\n";
+            }
+        } else {
+
+            print_help({"help","register"});
         }
     }
 
