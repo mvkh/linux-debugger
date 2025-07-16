@@ -48,3 +48,22 @@ TEST_CASE("process::attach invalid PID", "[process]")
 {
     REQUIRE_THROWS_AS(process::attach(0), sdb::error);
 }
+
+TEST_CASE("process::resume success", "[process]")
+{
+    {
+        auto proc = process::launch("targets/run_endlessly");
+        proc->resume();
+        auto status = get_process_status(proc->pid());
+        auto success = ((status == 'R') or (status == 'S'));
+        REQUIRE(success);
+    }
+    {
+        auto target = process::launch("targets/run_endlessly", false);
+        auto proc = process::attach(target->pid());
+        proc->resume();
+        auto status = get_process_status(proc->pid());
+        auto success = ((status == 'R') or (status == 'S'));
+        REQUIRE(success);
+    }
+}
