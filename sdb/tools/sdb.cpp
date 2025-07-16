@@ -105,51 +105,25 @@ namespace
         fmt::print("Process {} {}\n", process.pid(), message);
     }
 
-    void handle_command(std::unique_ptr<sdb::process>& process, std::string_view line)
+    void print_help(const std::vector<std::string>& args)
     {
-        auto args = split(line, ' ');
-        auto command = args[0];
-
-        if (is_prefix(command, "continue"))
+        if (args.size() == 1)
         {
-            process->resume();
-            auto reason = process->wait_on_signal();
-            print_stop_reason(*process, reason);
+            std::cerr << R"(Available commands:
+    continue    - Resume the process
+    register    - Commands for operating on registers
+)";
+        } else if (is_prefix(args[1], "register")) {
 
-        } else if (is_prefix(command, "help")) {
-
-            print_help(args);
-
-        } else if (is_prefix(command, "register")) {
-
-            handle_register_command(*process, args);
-
+            std::cerr << R"(Available commands:
+    read
+    read <register>
+    read all
+    write <register> <value>
+)";
         } else {
 
-            std::cerr << "Unknown command\n";
-        }
-    }
-
-    void handle_register_command(sdb::process& process, const std::vector<std::string>& args)
-    {
-        if (args.size() < 2)
-        {
-            print_help({"help", "register"});
-            return;
-        }
-
-        if (is_prefix(args[1], "read"))
-        {
-            handle_register_read(process, args);
-
-        } else if (is_prefix(args[1], "read")) {
-
-            handle_register_write(process, args);
-
-        } else {
-
-            print_help({"help", "register"});
-
+            std::cerr << "No help available on that\n";
         }
     }
 
@@ -221,25 +195,51 @@ namespace
         
     }
 
-    void print_help(const std::vector<std::string>& args)
+    void handle_register_command(sdb::process& process, const std::vector<std::string>& args)
     {
-        if (args.size() == 1)
+        if (args.size() < 2)
         {
-            std::cerr << R"(Available commands:
-    continue    - Resume the process
-    register    - Commands for operating on registers
-)";
-        } else if (is_prefix(args[1], "register")) {
+            print_help({"help", "register"});
+            return;
+        }
 
-            std::cerr << R"(Available commands:
-    read
-    read <register>
-    read all
-    write <register> <value>
-)";
+        if (is_prefix(args[1], "read"))
+        {
+            handle_register_read(process, args);
+
+        } else if (is_prefix(args[1], "read")) {
+
+            handle_register_write(process, args);
+
         } else {
 
-            std::cerr << "No help available on that\n";
+            print_help({"help", "register"});
+
+        }
+    }ß
+
+    void handle_command(std::unique_ptr<sdb::process>& process, std::string_view line)
+    {
+        auto args = split(line, ' ');
+        auto command = args[0];
+
+        if (is_prefix(command, "continue"))
+        {
+            process->resume();
+            auto reason = process->wait_on_signal();
+            print_stop_reason(*process, reason);
+
+        } else if (is_prefix(command, "help")) {
+
+            print_help(args);
+
+        } else if (is_prefix(command, "register")) {
+
+            handle_register_command(*process, args);
+
+        } else {
+
+            std::cerr << "Unknown command\n";
         }
     }
 
