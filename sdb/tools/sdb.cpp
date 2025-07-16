@@ -143,7 +143,7 @@ namespace
 
                 return fmt::format(":#04x", fmt::join(t, ","));
             }
-        }
+        };
 
         if ((args.size == 2) or ((args.size == 3) and (args[2] == "all")))
         {
@@ -216,7 +216,7 @@ namespace
             print_help({"help", "register"});
 
         }
-    }ß
+    }
 
     void handle_command(std::unique_ptr<sdb::process>& process, std::string_view line)
     {
