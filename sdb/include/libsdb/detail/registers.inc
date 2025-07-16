@@ -53,7 +53,7 @@ DEFINE_GPR_32(r9d, r9),
 DEFINE_GPR_32(r10d, r10),
 DEFINE_GPR_32(r11d, r11),
 DEFINE_GPR_32(r12d, r12),
-DEFINE_GPR_32(r15d, r13),
+DEFINE_GPR_32(r13d, r13),
 DEFINE_GPR_32(r14d, r14),
 DEFINE_GPR_32(r15d, r15),
 
@@ -70,7 +70,7 @@ DEFINE_GPR_16(r9w, r9),
 DEFINE_GPR_16(r10w, r10),
 DEFINE_GPR_16(r11w, r11),
 DEFINE_GPR_16(r12w, r12),
-DEFINE_GPR_16(r15w, r13),
+DEFINE_GPR_16(r13w, r13),
 DEFINE_GPR_16(r14w, r14),
 DEFINE_GPR_16(r15w, r15),
 
@@ -92,7 +92,7 @@ DEFINE_GPR_8L(r9b, r9),
 DEFINE_GPR_8L(r10b, r10),
 DEFINE_GPR_8L(r11b, r11),
 DEFINE_GPR_8L(r12b, r12),
-DEFINE_GPR_8L(r15b, r13),
+DEFINE_GPR_8L(r13b, r13),
 DEFINE_GPR_8L(r14b, r14),
 DEFINE_GPR_8L(r15b, r15),
 
@@ -101,7 +101,7 @@ DEFINE_GPR_8L(r15b, r15),
 
 #define DEFINE_FPR(name,dwarf_id,user_name) DEFINE_REGISTER(name, dwarf_id, FPR_SIZE(user_name), FPR_OFFSET(user_name), register_type::fpr, register_format::uint)
 
-#define DEFINE_FP_ST(number) DEFINE_REGISTER(st ## number, (33 + number), 16, (FPR_OFFSET(st_space) + number*16), register_type::fpr, register_format::log_double)
+#define DEFINE_FP_ST(number) DEFINE_REGISTER(st ## number, (33 + number), 16, (FPR_OFFSET(st_space) + number*16), register_type::fpr, register_format::long_double)
 
 #define DEFINE_FP_MM(number) DEFINE_REGISTER(mm ## number, (41 + number), 8, (FPR_OFFSET(st_space) + number*16), register_type::fpr, register_format::vector)
 
