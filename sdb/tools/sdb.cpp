@@ -145,11 +145,11 @@ namespace
             }
         };
 
-        if ((args.size == 2) or ((args.size == 3) and (args[2] == "all")))
+        if ((args.size() == 2) or ((args.size() == 3) and (args[2] == "all")))
         {
             for (auto& info: sdb::g_register_infos)
             {
-                auto should_print = ((args.size == 3) or (info.type == sdb::register_type::gpr)) and (info.name != "orig_rax");
+                auto should_print = ((args.size() == 3) or (info.type == sdb::register_type::gpr)) and (info.name != "orig_rax");
                 if (!should_print) continue;
                 auto value = process.get_registers().read(info);
                 fmt::print("{}:\t{}\n", info.name, std::visit(format, value));
