@@ -33,8 +33,8 @@ namespace sdb
             bool operator<(const virt_addr& other) const { return (addr_ < other.addr_); }
             bool operator<=(const virt_addr& other) const { return (addr_ <= other.addr_); }
 
-            bool operator<(const virt_addr& other) const { return (addr_ < other.addr_); }
-            bool operator<=(const virt_addr& other) const { return (addr_ <= other.addr_); }
+            bool operator>(const virt_addr& other) const { return (addr_ > other.addr_); }
+            bool operator>=(const virt_addr& other) const { return (addr_ >= other.addr_); }
     };
 }
 
