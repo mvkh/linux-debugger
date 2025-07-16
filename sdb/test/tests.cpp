@@ -73,5 +73,5 @@ TEST_CASE("process::resume already terminated", "[process]")
     auto proc = process::launch("targets/end_immediately");
     proc->resume();
     proc->wait_on_signal();
-    REQUIRE_THROWS_AS(proc->resume(), std::error)
+    REQUIRE_THROWS_AS(proc->resume(), sdb::error);
 }
