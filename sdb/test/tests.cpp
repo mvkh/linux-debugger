@@ -46,5 +46,5 @@ TEST_CASE("process::attach success", "[process]")
 
 TEST_CASE("process::attach invalid PID", "[process]")
 {
-    REQUIRE_THROWS_AS(process::attach(0), sdb::error)
+    REQUIRE_THROWS_AS(process::attach(0), sdb::error);
 }
