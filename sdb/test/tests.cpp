@@ -153,5 +153,5 @@ TEST_CASE("Read register works", "[register]")
     proc->resume();
     proc->wait_on_signal();
 
-    REQUIRE(regs.read_by_id_as<std::long double>(register_id::st0) == 64.125L);
+    REQUIRE(regs.read_by_id_as<long double>(register_id::st0) == 64.125L);
 }
