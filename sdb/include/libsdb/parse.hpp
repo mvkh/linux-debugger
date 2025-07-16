@@ -31,7 +31,7 @@ namespace sdb
     }
 
     template<>
-    intline std::optional<std::byte> to_integral(std::string_view sv, int base)
+    inline std::optional<std::byte> to_integral(std::string_view sv, int base)
     {
         auto uint8 = to_integral<std::uint8_t>(sv, base);
         if (uint8) return static_cast<std::byte>(*uint8);
@@ -55,7 +55,7 @@ namespace sdb
     template <std::size_t N>
     auto parse_vector(std::string_view text)
     {
-        auto invalid = [] { sdb::error::send("Invalid format"); }
+        auto invalid = [] { sdb::error::send("Invalid format"); };
 
         std::array<std::byte, N> bytes;
         const char* c = text.data();
