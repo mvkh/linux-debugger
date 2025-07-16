@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <libsdb/registers.hpp>
+#include <optional>
 
 namespace sdb 
 {
@@ -35,7 +36,7 @@ namespace sdb
 
             process& operator=(const process&) = delete;
 
-            static std::unique_ptr<process> launch(std::filesystem::path path, bool debug = true);
+            static std::unique_ptr<process> launch(std::filesystem::path path, bool debug = true, std::optional<int> stdout_replacement = std::nullopt);
             static std::unique_ptr<process> attach(pid_t pid);
 
             void resume();
