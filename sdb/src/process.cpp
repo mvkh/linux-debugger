@@ -11,7 +11,7 @@ namespace
 {
     void exit_with_perror(sdb::pipe& channel, std::string const& prefix)
     {
-        auto message = prefix + ": " + std::stderror(errno);
+        auto message = prefix + ": " + std::strerror(errno);
         channel.write(reinterpret_cast<std::byte*>(message.data()), message.size());
         exit(-1);
     }
