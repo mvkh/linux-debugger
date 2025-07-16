@@ -30,6 +30,14 @@ main:
     call    fflush@plt
     trap
 
+    movq    %mm0, %rsi
+    leaq    hex_format(%rip), %rdi
+    movq    $0, %rax
+    call    printf@plt
+    movq    $0, %rdi
+    call    fflush@plt
+    trap
+
     popq    %rbp
     movq    $0, %rax
 
