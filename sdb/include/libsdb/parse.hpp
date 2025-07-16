@@ -24,7 +24,7 @@ namespace sdb
 
         if (result.ptr != sv.end())
         {
-            return std::nullptr;
+            return std::nullopt;
         }
 
         return ret;
