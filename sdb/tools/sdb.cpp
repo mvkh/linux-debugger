@@ -137,11 +137,11 @@ namespace
 
             } else if constexpr(std::is_integral_v<decltype(t)>) {
 
-                return fmt::format(":#0{}x", t, sizeof(t)*2 + 2);
+                return fmt::format("{:#0{}x}", t, sizeof(t)*2 + 2);
 
             } else {
 
-                return fmt::format(":#04x", fmt::join(t, ","));
+                return fmt::format("[{:#04x}]", fmt::join(t, ","));
             }
         };
 
@@ -207,7 +207,7 @@ namespace
         {
             handle_register_read(process, args);
 
-        } else if (is_prefix(args[1], "read")) {
+        } else if (is_prefix(args[1], "write")) {
 
             handle_register_write(process, args);
 
