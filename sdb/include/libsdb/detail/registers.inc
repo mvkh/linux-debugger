@@ -4,7 +4,7 @@
 
 #define GPR_OFFSET(reg) (offsetof(user, regs) + offsetof(user_regs_struct, reg))
 
-#define DEFINE_GPR_64(name,super) DEFINE_REGISTER(name, dwarf_id, 8, GPR_OFFSET(name), register_type::gpr, register_format::uint)
+#define DEFINE_GPR_64(name,dwarf_id) DEFINE_REGISTER(name, dwarf_id, 8, GPR_OFFSET(name), register_type::gpr, register_format::uint)
 
 #define DEFINE_GPR_32(name,super) DEFINE_REGISTER(name, -1, 4, GPR_OFFSET(super), register_type::sub_gpr, register_format::uint)
 
