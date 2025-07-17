@@ -11,16 +11,6 @@ namespace sdb
 
     class breakpoint_site
     {
-        private:
-            breakpoint_site(process& proc, virt_addr address);
-            friend process;
-
-            id_type id_;
-            process* process_;
-            virt_addr address_;
-            bool is_enabled_;
-            std::byte saved_data_;
-
         public:
             breakpoint_site() = delete;
             breakpoint_site(const breakpoint_site&) = delete;
@@ -37,6 +27,17 @@ namespace sdb
 
             bool at_address(virt_addr addr) const { return (address_ == addr); }
             bool in_range(virt_addr low, virt_addr high) const { return ((low <= address_) and (address_ < high)); }
+            
+        private:
+            breakpoint_site(process& proc, virt_addr address);
+            friend process;
+
+            id_type id_;
+            process* process_;
+            virt_addr address_;
+            bool is_enabled_;
+            std::byte saved_data_;
+
     };
 }
 

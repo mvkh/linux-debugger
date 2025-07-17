@@ -129,7 +129,7 @@ namespace sdb
     template <class Stoppoint>
     void stoppoint_collection<Stoppoint>::remove_by_address(virt_addr address) 
     {
-        auto it = find_by_address(adress);
+        auto it = find_by_address(address);
         (**it).disable();
         stoppoints_.erase(it);
     }
