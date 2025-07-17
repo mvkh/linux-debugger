@@ -240,7 +240,7 @@ namespace
 
         if (is_prefix(command, "list"))
         {
-            if (process.breakpoint_sites.empty())
+            if (process.breakpoint_sites().empty())
             {
                 fmt::print("No breakpoints set\n");
 
@@ -250,7 +250,7 @@ namespace
 
                 process.breakpoint_sites().for_each([](auto& site)
                 {
-                    fmt::print("{}: address = {:#x}, {}\n", site.id(), site.address().addr(), site.is_enable ? "enabled" : "disabled");
+                    fmt::print("{}: address = {:#x}, {}\n", site.id(), site.address().addr(), site.is_enabled() ? "enabled" : "disabled");
                 });
             }
 
