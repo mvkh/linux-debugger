@@ -17,6 +17,16 @@ namespace
     }
 }
 
+sdb::breakpoint_site& sdb::process::create_breakpoint_site(virt_addr address)
+{
+    if (breakpoint_sites_.contains_address(address))
+    {
+        error::send("Breakpoint site already created at address " + std::to_string(address.addr()));
+    }
+
+    return breakpoint_sites_.push(std::unique_ptr<breakpoint_site>(new breakpoint_site(*this, address)));
+}
+
 std::unique_ptr<sdb::process> sdb::process::launch(std::filesystem::path path, bool debug, std::optional<int> stdout_replacement)
 {
     pipe channel(true);
