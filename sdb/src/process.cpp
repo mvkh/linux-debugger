@@ -291,7 +291,7 @@ std::vector<std::byte> sdb::process::read_memory(virt_addr address, std::size_t 
         address += chunk_size;
     }
 
-    if (process_vm_read(pid_, &local_desc, 1, remote_descs.data(), remote_descs.size(), 0) < 0)
+    if (process_vm_readv(pid_, &local_desc, 1, remote_descs.data(), remote_descs.size(), 0) < 0)
     {
         error::send_errno("Could not read process memory");
     }
