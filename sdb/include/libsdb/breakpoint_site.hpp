@@ -29,7 +29,7 @@ namespace sdb
             bool in_range(virt_addr low, virt_addr high) const { return ((low <= address_) and (address_ < high)); }
 
             bool is_hardware() const { return is_hardware_; }
-            bool is_internal() const { return is_enabled_; }
+            bool is_internal() const { return is_internal_; }
 
         private:
             breakpoint_site(process& proc, virt_addr address, bool is_hardware = false, bool is_internal = false);
