@@ -18,7 +18,7 @@ namespace sdb
             process* process_;
 
         public:
-            disassembler(process& proc): process_(&proc);
+            disassembler(process& proc): process_(&proc) {}
             std::vector<instruction> disassemble(std::size_t n_instructions, std::optional<virt_addr> address = std::nullopt);
     };
 }

@@ -1,7 +1,7 @@
 #include <Zydis/Zydis.h>
 #include <libsdb/disassembler.hpp>
 
-std::vector<instruction> sdb::disassembler::disassemble(std::size_t n_instructions, std::optional<virt_addr> address)
+std::vector<sdb::disassembler::instruction> sdb::disassembler::disassemble(std::size_t n_instructions, std::optional<virt_addr> address)
 {
     std::vector<instruction> ret;
     ret.reserve(n_instructions);
@@ -17,7 +17,7 @@ std::vector<instruction> sdb::disassembler::disassemble(std::size_t n_instructio
 
     while (ZYAN_SUCCESS(ZydisDisassembleATT(ZYDIS_MACHINE_MODE_LONG_64, address->addr(), code.data() + offset, code.size() - offset, &instr)) and (n_instructions > 0))
     {
-        ret.push_back(instruction{*address, std::string(instr.text)});
+        ret.push_back(sdb::disassembler::instruction{*address, std::string(instr.text)});
         offset += instr.info.length;
         *address += instr.info.length;
         --n_instructions;
