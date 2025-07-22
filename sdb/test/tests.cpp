@@ -412,7 +412,7 @@ TEST_CASE("Hardware breakpoint evades memory checksums", "[breakpoint]")
     REQUIRE(to_string_view(channel.read()) == "Putting pepperoni on pizza...\n");
 
     proc->breakpoint_sites().remove_by_id(soft.id());
-    auto& hard = proc->create_breakpoint_site(func, false);
+    auto& hard = proc->create_breakpoint_site(func, true);
     hard.enable();
 
     proc->resume();
