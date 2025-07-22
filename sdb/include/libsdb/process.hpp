@@ -10,6 +10,7 @@
 #include <vector>
 #include <libsdb/breakpoint_site.hpp>
 #include <libsdb/stoppoint_collection.hpp>
+#include <libsdb/bit.hpp>
 
 namespace sdb 
 {
