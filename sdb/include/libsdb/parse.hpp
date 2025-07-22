@@ -80,7 +80,7 @@ namespace sdb
 
     inline auto parse_vector(std::string_view text)
     {
-        auto invalid = [] { sdb::error::send("Invalid format"); }
+        auto invalid = [] { sdb::error::send("Invalid format"); };
 
         std::vector<std::byte> bytes;
         const char* c = text.data();
