@@ -10,7 +10,7 @@ std::vector<sdb::disassembler::instruction> sdb::disassembler::disassemble(std::
     {
         address.emplace(process_->get_pc());
     }
-    auto code = process_->read_memory(*address, n_instructions * 15);
+    auto code = process_->read_memory_without_traps(*address, n_instructions * 15);
 
     ZyanUSize offset = 0;
     ZydisDisassembledInstruction instr;
