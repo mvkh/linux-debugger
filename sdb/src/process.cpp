@@ -7,7 +7,7 @@
 #include <sys/personality.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys.uio.h>
+#include <sys/uio.h>
 
 namespace
 {
