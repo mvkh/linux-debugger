@@ -61,7 +61,11 @@ namespace sdb
                 return virt_addr{get_registers().read_by_id_as<std::uint64_t>(register_id::rip)};
             }
 
-            breakpoint_site& create_breakpoint_site(virt_addr address);
+            breakpoint_site& create_breakpoint_site(virt_addr address, bool hardware = false, bool internal = false);
+
+            int set_hardware_breakpoint(breakpoint_site::id_type id, virt_addr address);
+
+            void clear_hardware_stoppoint(int index);
 
             stoppoint_collection<breakpoint_site>& breakpoint_sites() { return breakpoint_sites_; }
             const stoppoint_collection<breakpoint_site>& breakpoint_sites() const { return breakpoint_sites_; }
@@ -86,6 +90,8 @@ namespace sdb
                 : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached), registers_(new registers(*this)) {}
 
             void read_all_registers();
+
+            int set_hardware_stoppoint(virt_addr address, stoppoint_mode mode, std::size_t size);
 
             pid_t pid_ = 0;
             bool terminate_on_end_ = true;

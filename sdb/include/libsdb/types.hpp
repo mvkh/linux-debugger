@@ -11,6 +11,11 @@ namespace sdb
     using byte64 = std::array<std::byte, 8>;
     using byte128 = std::array<std::byte, 16>;
 
+    enum class stoppoint_mode
+    {
+        write, read_write, execute
+    };
+
     class virt_addr
     {
         private:
