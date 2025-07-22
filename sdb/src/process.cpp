@@ -299,7 +299,7 @@ std::vector<std::byte> sdb::process::read_memory(virt_addr address, std::size_t 
     return ret;
 }
 
-void std::process::write_memory(virt_addr address, span<const std::byte> data)
+void sdb::process::write_memory(virt_addr address, span<const std::byte> data)
 {
     std::size_t written = 0;
     while (written < data.size())
