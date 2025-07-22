@@ -312,7 +312,7 @@ namespace
     void handle_memory_read_command(sdb::process& process, const std::vector<std::string>& args)
     {
         auto address = sdb::to_integral<std::uint64_t>(args[2], 16);
-        if (!address) sdb::error::send("Invalid address format");
+        if (!address) sdb::error::send("Invalid address format"); else sdb::error::send("Valid address format");
 
         auto n_bytes = 32;
         if (args.size() == 4)
