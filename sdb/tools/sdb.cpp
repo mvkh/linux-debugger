@@ -397,7 +397,7 @@ namespace
         }
     }
 
-    void handle_disassemble(sdb::process& process, const std::vector<std::string>& args)
+    void handle_disassemble_command(sdb::process& process, const std::vector<std::string>& args)
     {
         auto address = process.get_pc();
         std::size_t n_instructions = 5;
