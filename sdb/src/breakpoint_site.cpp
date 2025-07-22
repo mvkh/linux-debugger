@@ -13,7 +13,7 @@ namespace
     }
 }
 
-sdb::breakpoint_site::breakpoint_site(process& proc, virt_addr address, bool is_hardware = false, bool is_internal = false):
+sdb::breakpoint_site::breakpoint_site(process& proc, virt_addr address, bool is_hardware, bool is_internal):
     process_{&proc}, address_{address}, is_enabled_{false}, saved_data_{}, is_hardware_{is_hardware}, is_internal_{is_internal}
 {
     id_ = is_internal_ ? -1 : get_next_id();
