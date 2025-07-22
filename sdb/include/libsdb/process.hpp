@@ -69,6 +69,16 @@ namespace sdb
 
             sdb::stop_reason step_instruction();
 
+            std::vector<std::byte> read_memory(virt_addr address, std::size_t amount) const;
+            void write_memory(virt_addr address, span<const std::byte> data);
+
+            template <class T>
+            T read_memory_as(virt_addr address) const
+            {
+                auto data = read_memory(address, sizeof(T));
+                return from_bytes<T>(data.data());
+            }
+
         private:
             process(pid_t pid, bool terminate_on_end, bool is_attached)
                 : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached), registers_(new registers(*this)) {}
