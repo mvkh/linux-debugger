@@ -390,3 +390,38 @@ TEST_CASE("Reading and writing memory works", "[memory]")
     auto read = channel.read();
     REQUIRE(to_string_view(read) == "Hello, sdb!");
 }
+
+TEST_CASE("Hardware breakpoint evades memory checksums", "[breakpoint]")
+{
+    bool close_on_exec = false;
+    sdb::pipe channel(close_on_exec);
+    auto proc = process::launch("targets/anti_debugger", true, channel.get_write());
+    channel.close_write();
+
+    proc->resume();
+    proc->wait_on_signal();
+
+    auto func = virt_addr(from_bytes<std::uint64_t>(channel.read().data()));
+
+    auto& soft = proc->create_breakpoint_site(func, false);
+    soft.enable();
+
+    proc->resume();
+    proc->wait_on_signal();
+
+    REQUIRE(to_string_view(channel.read()) == "Putting pepperoni on pizza...\n");
+
+    proc->breakpoint_sites().remove_by_id(soft.id());
+    auto& hard = proc->create_breakpoint_site(func, false);
+    hard.enable();
+
+    proc->resume();
+    proc->wait_on_signal();
+
+    REQUIRE(proc->get_pc() == func);
+
+    proc->resume();
+    proc->wait_on_signal();
+
+    REQUIRE(to_string_view(channel.read()) == "Putting pineapple on pizza...\n");
+}
