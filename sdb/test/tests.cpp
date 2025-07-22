@@ -418,7 +418,7 @@ TEST_CASE("Hardware breakpoint evades memory checksums", "[breakpoint]")
     proc->resume();
     proc->wait_on_signal();
 
-    REQUIRE(proc->get_pc() == func);
+    REQUIRE(proc->get_pc().addr() == func.addr());
 
     proc->resume();
     proc->wait_on_signal();
