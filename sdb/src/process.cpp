@@ -415,3 +415,18 @@ void sdb::process::write_memory(virt_addr address, span<const std::byte> data)
         written += 8;
     }
 }
+
+int sdb::process::set_watchpoint(watchpoint::id_type id, virt_addr address, stoppoint_mode mode, std::size_t size)
+{
+    return set_hardware_stoppoint(address, mode, size);
+}
+
+watchpoint& sdb::process::create_watchpoint(virt_addr address, stoppoint_mode mode, std::size_t size)
+{
+    if (watchpoints_.contains_address(address))
+    {
+        error::send("Watchpoint already created at address " + std::to_string(address.addr()));
+    }
+
+    return watchpoints_.push(std::unique_ptr<watchpoint>(new watchpoint(*this, address, mode, size)));
+}

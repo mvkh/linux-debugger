@@ -11,6 +11,7 @@
 #include <libsdb/breakpoint_site.hpp>
 #include <libsdb/stoppoint_collection.hpp>
 #include <libsdb/bit.hpp>
+#include <libsdb/watchpoint.hpp>
 
 namespace sdb 
 {
@@ -67,6 +68,11 @@ namespace sdb
 
             void clear_hardware_stoppoint(int index);
 
+            int set_watchpoint(watchpoint::id_type id, virt_addr address, stoppoint_mode mode, std::size_t size);
+
+            watchpoint& create_watchpoint(virt_addr address, stoppoint_mode mode, std::size_t size);
+            stoppoint_collection<watchpoint>& watchpoints() const {return watchpoints_; }
+
             stoppoint_collection<breakpoint_site>& breakpoint_sites() { return breakpoint_sites_; }
             const stoppoint_collection<breakpoint_site>& breakpoint_sites() const { return breakpoint_sites_; }
 
@@ -99,6 +105,7 @@ namespace sdb
             bool is_attached_ = true;
             std::unique_ptr<registers> registers_;
             stoppoint_collection<breakpoint_site> breakpoint_sites_;
+            stoppoint_collection<watchpoint> watchpoints_;
     };
 }
 
