@@ -366,7 +366,7 @@ namespace
                 case sdb::stoppoint_mode::execute: return "execute";
                 case sdb::stoppoint_mode::write: return "write";
                 case sdb::stoppoint_mode::read_write: return "read_write";
-                default: sdb::error::send("Invalid stoppoint mode")
+                default: sdb::error::send("Invalid stoppoint mode");
             }
         };
 
@@ -408,7 +408,7 @@ namespace
         else if (mode_text == "rw") mode = sdb::stoppoint_mode::read_write;
         else if (mode_text == "execute") mode = sdb::stoppoint_mode::execute;
 
-        process.create_watchpoint(sdb::virt_address{*address}, mode, *size).enable();
+        process.create_watchpoint(sdb::virt_addr{*address}, mode, *size).enable();
     }
 
     void handle_watchpoint_command(sdb::process& process, const std::vector<std::string>& args)
