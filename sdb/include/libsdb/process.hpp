@@ -71,6 +71,7 @@ namespace sdb
             int set_watchpoint(watchpoint::id_type id, virt_addr address, stoppoint_mode mode, std::size_t size);
 
             watchpoint& create_watchpoint(virt_addr address, stoppoint_mode mode, std::size_t size);
+            stoppoint_collection<watchpoint>& watchpoints() { return watchpoints_; }
             const stoppoint_collection<watchpoint>& watchpoints() const { return watchpoints_; }
 
             stoppoint_collection<breakpoint_site>& breakpoint_sites() { return breakpoint_sites_; }
