@@ -421,7 +421,7 @@ int sdb::process::set_watchpoint(watchpoint::id_type id, virt_addr address, stop
     return set_hardware_stoppoint(address, mode, size);
 }
 
-watchpoint& sdb::process::create_watchpoint(virt_addr address, stoppoint_mode mode, std::size_t size)
+sdb::watchpoint& sdb::process::create_watchpoint(virt_addr address, stoppoint_mode mode, std::size_t size)
 {
     if (watchpoints_.contains_address(address))
     {
