@@ -17,7 +17,7 @@ namespace sdb
 {
     enum class trap_type
     {
-        single_step, software_break, hardware_break, unknown;
+        single_step, software_break, hardware_break, unknown
     };
 
     enum class process_state 
