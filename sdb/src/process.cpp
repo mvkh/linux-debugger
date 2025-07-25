@@ -115,6 +115,11 @@ std::unique_ptr<sdb::process> sdb::process::launch(std::filesystem::path path, b
 
     if (pid == 0)
     {
+        if (setpgid(0, 0) < 0)
+        {
+            exit_with_perror(channel, "Could not set pgid");
+        }
+        
         personality(ADDR_NO_RANDOMIZE);
         channel.close_read();
 
