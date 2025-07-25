@@ -15,6 +15,11 @@
 
 namespace sdb 
 {
+    enum class trap_type
+    {
+        single_step, software_break, hardware_break, unknown;
+    };
+
     enum class process_state 
     {
         stopped,
@@ -29,6 +34,7 @@ namespace sdb
 
         process_state reason;
         std::uint8_t info;
+        std::optional<trap_type> trap_reason;
     };
 
     class process
@@ -92,6 +98,8 @@ namespace sdb
                 return from_bytes<T>(data.data());
             }
 
+            std::variant<breakpoint_site::id_type, watchpoint::id_type> get_current_hardware_stoppoint() const;
+
         private:
             process(pid_t pid, bool terminate_on_end, bool is_attached)
                 : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached), registers_(new registers(*this)) {}
@@ -99,6 +107,8 @@ namespace sdb
             void read_all_registers();
 
             int set_hardware_stoppoint(virt_addr address, stoppoint_mode mode, std::size_t size);
+
+            void augment_stop_reason(stop_reason& reason);
 
             pid_t pid_ = 0;
             bool terminate_on_end_ = true;
