@@ -149,7 +149,7 @@ namespace
                 message =fmt::format("stopped with signal {} at {:#x}", sigabbrev_np(reason.info), process.get_pc().addr());
                 if (reason.info == SIGTRAP)
                 {
-                    message += get_sigtrap_infor(process, reason);
+                    message += get_sigtrap_info(process, reason);
                 }
                 break;
         }
