@@ -18,6 +18,13 @@
 
 namespace 
 {
+    sdb::process* g_sdb_process = nullptr;
+
+    void handle_sigint(int)
+    {
+        kill(g_sdb_process->pid(), SIGSTOP);
+    }
+
     sdb::registers::value parse_register_value(sdb::register_info info, std::string_view text)
     {
         try
@@ -662,6 +669,8 @@ int main (int argc, const char** argv)
     try
     {
         auto process = attach(argc, argv);
+        g_sdb_process = process.get();
+        signal(SIGINT, handle_sigint);
         main_loop(process);
 
     } catch(const sdb::error& err) {
