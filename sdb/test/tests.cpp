@@ -475,7 +475,7 @@ TEST_CASE("Syscall catchpoints work", "[catchpoint]")
     auto proc = process::launch("targets/anti_debugger", true, dev_null);
 
     auto write_syscall = sdb::syscall_name_to_id("write");
-    auto policy = sdb::syscall_catch_policy::catch_some(write_syscall);
+    auto policy = sdb::syscall_catch_policy::catch_some({write_syscall});
     proc->set_syscall_catch_policy(policy);
 
     proc->resume();
