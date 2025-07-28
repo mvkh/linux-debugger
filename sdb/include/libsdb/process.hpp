@@ -78,8 +78,6 @@ namespace sdb
 
         private:
             syscall_catch_policy(mode mode, std::vector<int> to_catch): mode_(mode), to_catch_(std::move(to_catch)) {}
-
-            sdb::stop_reason maybe_resume_from_syscall(const stop_reason& reason);
             
             mode mode_ = mode::none;
             std::vector<int> to_catch_;
@@ -162,6 +160,8 @@ namespace sdb
             int set_hardware_stoppoint(virt_addr address, stoppoint_mode mode, std::size_t size);
 
             void augment_stop_reason(stop_reason& reason);
+
+            sdb::stop_reason maybe_resume_from_syscall(const stop_reason& reason);
 
             pid_t pid_ = 0;
             bool terminate_on_end_ = true;
