@@ -7,6 +7,7 @@
 #include <elf.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <fstream>
 #include <regex>
 
