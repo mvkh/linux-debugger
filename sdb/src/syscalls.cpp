@@ -9,7 +9,7 @@ namespace
         #define DEFINE_SYSCALL(name, id) {#name, id},
         #include "include/syscalls.inc"
         #undef DEFINE_SYSCALL
-    }
+    };
 }
 
 std::string_view sdb::syscall_id_to_name(int id)
