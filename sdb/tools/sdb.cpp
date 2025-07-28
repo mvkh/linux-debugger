@@ -630,7 +630,7 @@ namespace
         print_disassembly(process, address, n_instructions);
     }
 
-    void handle_catchpoint_syscall_command(sdb::process& process, const std::vector<std::string>& args)
+    void handle_syscall_catchpoint_command(sdb::process& process, const std::vector<std::string>& args)
     {
         sdb::syscall_catch_policy policy = sdb::syscall_catch_policy::catch_all();
 
