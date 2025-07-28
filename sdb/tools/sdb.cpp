@@ -12,6 +12,7 @@
 #include <libsdb/error.hpp>
 #include <libsdb/parse.hpp>
 #include <libsdb/disassembler.hpp>
+#include <libsdb/syscalls.hpp>
 #include <string.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
