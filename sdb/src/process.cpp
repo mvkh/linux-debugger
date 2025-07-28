@@ -502,7 +502,7 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
 
         } else {
 
-            sys_info.entry = false;
+            sys_info.entry = true;
             sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
 
             std::array<register_id, 6> arg_regs = {register_id::rdi, register_id::rsi, register_id::rdx, register_id::r10, register_id::r8, register_id::r9};
