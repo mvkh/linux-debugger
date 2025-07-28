@@ -3,6 +3,7 @@
 #include <libsdb/error.hpp>
 #include <libsdb/pipe.hpp>
 #include <libsdb/bit.hpp>
+#include <libsdb/syscalls.hpp>
 #include <elf.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -457,4 +458,12 @@ TEST_CASE("Watchpoint detects read", "[watchpoint]")
     proc->wait_on_signal();
 
     REQUIRE(to_string_view(channel.read()) == "Putting pineapple on pizza...\n");
+}
+
+TEST_CASE("Syscall mapping works", "[syscall]")
+{
+    REQUIRE(sdb::syscall_id_to_name(0) == "read");
+    REQUIRE(sdb::syscall_name_to_id("read") == 0);
+    REQUIRE(sdb::syscall_id_to_name(62) == "kill");
+    REQUIRE(sdb::syscall_name_to_id("kill") == 62);
 }
