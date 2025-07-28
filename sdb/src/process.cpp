@@ -56,7 +56,7 @@ namespace
 
     void set_ptrace_options(pid_t pid)
     {
-        if (ptrace(PTRACE_SETOPTIONS, pid, nullptr, PTRACE_0_TRACESYSGOOD) < 0)
+        if (ptrace(PTRACE_SETOPTIONS, pid, nullptr, PTRACE_O_TRACESYSGOOD) < 0)
         {
             sdb::error::send_errno("Failed to set TRACESYSGOOD option");
         }
