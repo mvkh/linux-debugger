@@ -12,7 +12,7 @@ namespace
     }
 }
 
-static std::unique_ptr<sdb::target> sdb::target::launch(std::filesystem::path path, std::optional<int> stdout_replacement = std::nullopt)
+static std::unique_ptr<sdb::target> sdb::target::launch(std::filesystem::path path, std::optional<int> stdout_replacement)
 {
     auto proc = process::launch(path, true, stdout_replacement);
     auto obj = create_loaded_elf(*proc, path);
