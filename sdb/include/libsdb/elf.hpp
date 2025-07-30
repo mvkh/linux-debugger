@@ -59,7 +59,7 @@ namespace sdb
             const Elf64_Shdr* get_section_containing_address(file_addr addr) const;
             const Elf64_Shdr* get_section_containing_address(virt_addr addr) const;
 
-            std::optional<sbd::file_addr> get_section_start_address(std::string_view name) const;
+            std::optional<sdb::file_addr> get_section_start_address(std::string_view name) const;
 
             std::vector<const Elf64_Sym*> get_symbols_by_name(std::string_view name) const;
 

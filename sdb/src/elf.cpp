@@ -131,7 +131,7 @@ const Elf64_Shdr* sdb::elf::get_section_containing_address(virt_addr addr) const
     return nullptr;
 }
 
-std::optional<sbd::file_addr> sdb::elf::get_section_start_address(std::string_view name) const
+std::optional<sdb::file_addr> sdb::elf::get_section_start_address(std::string_view name) const
 {
     if (auto sect = get_section(name); sect)
     {
