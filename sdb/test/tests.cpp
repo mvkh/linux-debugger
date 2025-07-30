@@ -506,7 +506,7 @@ TEST_CASE("ELF parser works", "[elf]")
     sdb::elf elf(path);
     auto entry = elf.get_header().e_entry;
     auto sym = elf.get_symbol_at_address(file_addr{elf, entry});
-    auto name = elf.get_strings(sym.value()->st_name);
+    auto name = elf.get_string(sym.value()->st_name);
     REQUIRE(name == "_start");
 
     auto syms = elf.get_symbols_by_name("_start");
@@ -515,6 +515,6 @@ TEST_CASE("ELF parser works", "[elf]")
 
     elf.notify_loaded(virt_addr{0xcafecafe});
     sym = elf.get_symbol_at_address(virt_addr{0xcafecafe + entry});
-    name = elf.get_strings(sym.value()->st_name);
+    name = elf.get_string(sym.value()->st_name);
     REQUIRE(name == "_start");
 }
