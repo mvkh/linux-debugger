@@ -138,7 +138,7 @@ std::optional<sdb::file_addr> sdb::elf::get_section_start_address(std::string_vi
         return file_addr{ *this, sect.value()->sh_addr };
     }
 
-    return stdd::nullopt;
+    return std::nullopt;
 }
 
 void sdb::elf::parse_symbol_table()
@@ -187,7 +187,7 @@ std::vector<const Elf64_Sym*> sdb::elf::get_symbols_by_name(std::string_view nam
 
 std::optional<const Elf64_Sym*> sdb::elf::get_symbol_at_address(file_addr address) const
 {
-    if (address.elf_file() != this) return std::nulopt;
+    if (address.elf_file() != this) return std::nullopt;
 
     file_addr null_addr;
     auto it = symbol_addr_map_.find({address, null_addr});
@@ -203,7 +203,7 @@ std::optional<const Elf64_Sym*> sdb::elf::get_symbol_at_address(virt_addr addres
 
 std::optional<const Elf64_Sym*> sdb::elf::get_symbol_containing_address(file_addr address) const
 {
-    if ((address.elf_file() != this) or symbol_addr_map_.empty()) return std::nulopt;
+    if ((address.elf_file() != this) or symbol_addr_map_.empty()) return std::nullopt;
 
     file_addr null_addr;
     auto it = symbol_addr_map_.lower_bound({address, null_addr});
@@ -224,7 +224,7 @@ std::optional<const Elf64_Sym*> sdb::elf::get_symbol_containing_address(file_add
         return value;
     }
 
-    return std::nulopt;
+    return std::nullopt;
 }
 
 std::optional<const Elf64_Sym*> sdb::elf::get_symbol_containing_address(virt_addr address) const
