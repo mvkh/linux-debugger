@@ -12,14 +12,14 @@ namespace
     }
 }
 
-static std::unique_ptr<target> sdb::traget::launch(std::filesystem::path path, std::optional<int> stdout_replacement = std::nullopt)
+static std::unique_ptr<sdb::target> sdb::traget::launch(std::filesystem::path path, std::optional<int> stdout_replacement = std::nullopt)
 {
     auto proc = process::launch(path, true, stdout_replacement);
     auto obj = create_loaded_elf(*proc, path);
     return std::unique_ptr<target>(new target(std::move(proc), std::move(obj)));
 }
 
-static std::unique_ptr<target> sdb::traget::attach(pid_t pid)
+static std::unique_ptr<sdb::target> sdb::traget::attach(pid_t pid)
 {
     auto elf_path = std::filesystem::path("/proc") / std::to_string(pid) / "exe";
     auto proc = process::attach(pid);
