@@ -575,7 +575,7 @@ std::unordered_map<int, std::uint64_t> sdb::process::get_auxv() const
     auto read = [&](auto& into)
     {
         auxv.read(reinterpret_cast<char*>(&into), sizeof(into));
-    }
+    };
 
     for (read(id); id != AT_NULL; read(id))
     {
