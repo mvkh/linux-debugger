@@ -83,7 +83,7 @@ std::optional<const Elf64_Shdr*> sdb::elf::get_section(std::string_view name) co
     return section_map_.at(name);
 }
 
-span<const std::byte> sdb::elf::get_section_contents(std::string_view name) const
+sdb::span<const std::byte> sdb::elf::get_section_contents(std::string_view name) const
 {
     if (auto sect = get_section(name); sect)
     {
