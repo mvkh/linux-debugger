@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/uio.h>
+#include <elf.h>
+#include <fstream>
 
 namespace
 {
@@ -560,4 +562,26 @@ std::variant<sdb::breakpoint_site::id_type, sdb::watchpoint::id_type> sdb::proce
         auto watch_id = watchpoints_.get_by_address(addr).id();
         return ret{std::in_place_index<1>, watch_id};
     }
+}
+
+std::unordered_map<int, std::uint64_t> get_auxv() const
+{
+    auto path = "/proc/" + std::to_string(pid_) + "/auxv";
+    std::ifstream auxv(path);
+
+    std::unordered_map<int, std::uint64_t> ret;
+    std::uint64_t id, value;
+
+    auto read = [&](auto& into)
+    {
+        auxv.read(reinterpret_cast<char*>(&into), sizeof(into));
+    }
+
+    for (read(id); id != AT_NULL; read(id))
+    {
+        read(value);
+        ret[id] = value;
+    }
+
+    return ret;
 }
