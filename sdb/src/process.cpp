@@ -564,7 +564,7 @@ std::variant<sdb::breakpoint_site::id_type, sdb::watchpoint::id_type> sdb::proce
     }
 }
 
-std::unordered_map<int, std::uint64_t> get_auxv() const
+std::unordered_map<int, std::uint64_t> sdb::process::get_auxv() const
 {
     auto path = "/proc/" + std::to_string(pid_) + "/auxv";
     std::ifstream auxv(path);
