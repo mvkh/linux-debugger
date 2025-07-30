@@ -109,7 +109,7 @@ const Elf64_Shdr* sdb::elf::get_section_containing_address(file_addr addr) const
 {
     if (addr.elf_file() != this) return nullptr;
 
-    for (&auto section: section_headers_)
+    for (auto& section: section_headers_)
     {
         if ((section.sh_addr <= addr.addr()) and (section.sh_addr + section.sh_size > addr.addr()))
         {
@@ -121,7 +121,7 @@ const Elf64_Shdr* sdb::elf::get_section_containing_address(file_addr addr) const
 
 const Elf64_Shdr* sdb::elf::get_section_containing_address(virt_addr addr) const
 {
-    for (&auto section: section_headers_)
+    for (auto& section: section_headers_)
     {
         if ((load_bias_ + section.sh_addr <= addr) and (load_bias_ + section.sh_addr + section.sh_size > addr))
         {
