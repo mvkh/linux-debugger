@@ -4,6 +4,7 @@
 #include <libsdb/pipe.hpp>
 #include <libsdb/bit.hpp>
 #include <libsdb/syscalls.hpp>
+#include <libsdb/target.hpp>
 #include <elf.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -497,4 +498,23 @@ TEST_CASE("Syscall catchpoints work", "[catchpoint]")
     REQUIRE(reason.syscall_info->entry == false);
 
     close(dev_null);
+}
+
+TEST_CASE("ELF parser works", "[elf]")
+{
+    auto path = "targets/hello_sdb";
+    sdb::elf elf(path);
+    auto entry = elf.get_header().e_entry;
+    auto sym = elf.get_symbol_at_address(file_addr{elf, entry});
+    auto name = elf.get_strings(sym.value()->st_name);
+    REQUIRE(name == "_start");
+
+    auto syms = elf.get_symbols_by_name("_start");
+    name = elf.get_string(syms.at(0)->st_name);
+    REQUIRE(name == "_start");
+
+    elf.notify_loaded(virt_addr{0xcafecafe});
+    sym = elf.get_symbol_at_address(virt_addr{0xcafecafe + entry});
+    name = elf.get_strings(sym.value()->st_name);
+    REQUIRE(name == "_start");
 }
