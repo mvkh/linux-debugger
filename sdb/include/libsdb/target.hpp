@@ -14,7 +14,7 @@ namespace sdb
             std::unique_ptr<process> process_;
             std::unique_ptr<elf> elf_;
 
-            target(std::unique_ptr<process> proc, std::unique_ptr<elf> obj): process_(std::move(proc)), elf(std::move(obj)) {}
+            target(std::unique_ptr<process> proc, std::unique_ptr<elf> obj): process_(std::move(proc)), elf_(std::move(obj)) {}
 
         public:
 
@@ -27,8 +27,8 @@ namespace sdb
 
             process& get_process() { return *process_; }
             const process& get_process() const { return *process_; }
-            elf& get_elf() { return elf_; }
-            const elf& get_elf() const { return elf_; }
+            elf& get_elf() { return *elf_; }
+            const elf& get_elf() const { return *elf_; }
     };
 }
 
