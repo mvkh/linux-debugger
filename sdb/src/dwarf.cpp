@@ -446,13 +446,12 @@ std::string_view sdb::attr::as_string() const
         case DW_FORM_string: return cur.string();
 
         case DW_FORM_strp:
-
+        {
             auto offset = cur.u32();
             auto stab = cu_->dwarf_info()->elf_file()->get_section_contents(".debug_str");
             cursor stab_cur({stab.begin() + offset, stab.end()});
             return stab_cur.string();
-
-        break;
+        }
 
         default: error::send("Invalid string type");
     }
