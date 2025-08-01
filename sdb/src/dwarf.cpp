@@ -487,14 +487,12 @@ sdb::file_addr sdb::die::high_pc() const
         file_addr addr;
         if (attr.form() == DW_FORM_addr)
         {
-            addr = attr.as_address();
+            return attr.as_address();
 
         } else {
 
-            addr = low_pc() + attr.as_int();
-        }
-
-        return file_addr{*cu_->dwarf_info()->elf_file(), addr};        
+            return (low_pc() + attr.as_int());
+        }    
     }
 
     error::send("DIE does not have high PC");
