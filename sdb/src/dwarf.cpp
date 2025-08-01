@@ -586,7 +586,7 @@ bool sdb::die::contains_address(file_addr address) const
     return false;
 }
 
-const compile_unit* sdb::dwarf::compile_unit_containing_address(file_addr address) const
+const sdb::compile_unit* sdb::dwarf::compile_unit_containing_address(file_addr address) const
 {
     for (auto& cu: compile_units_)
     {
