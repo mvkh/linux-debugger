@@ -536,7 +536,7 @@ sdb::range_list::iterator& sdb::range_list::iterator::operator++()
     return *this;
 }
 
-sdb::range_list::iterator& sdb::range_list::iterator::operator++(int)
+sdb::range_list::iterator sdb::range_list::iterator::operator++(int)
 {
     auto tmp = *this;
     ++(*this);
