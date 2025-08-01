@@ -419,7 +419,7 @@ sdb::die sdb::attr::as_reference() const
         case DW_FORM_ref_udata: offset = cur.uleb128(); break;
 
         case DW_FORM_ref_addr: 
-        
+        {
             offset = cur.u32();
             auto section = cu_->dwarf_info()->elf_file()->get_section_contents(".debug_info");
             auto die_pos = section.begin() + offset;
@@ -428,8 +428,7 @@ sdb::die sdb::attr::as_reference() const
             auto cu_for_offset = std::find_if(begin(cus), end(cus), cu_finder);
             cursor ref_cur({die_pos, cu_for_offset->get()->data().end()});
             return parse_die(**cu_for_offset, ref_cur);
-        
-        break;
+        }
 
         default: error::send("Invalid reference type");
     }
