@@ -166,7 +166,7 @@ namespace sdb
             const elf* elf_file() const { return elf_; }
 
             const std::unordered_map<std::uint64_t, abbrev>& get_abbrev_table(std::size_t offset);
-            const std::vector<std::unique_ptr<compile_unit>>& compile_units() { return compile_units_; }
+            const std::vector<std::unique_ptr<compile_unit>>& compile_units() const { return compile_units_; }
 
             const compile_unit* compile_unit_containing_address(file_addr address) const;
             std::optional<die> function_containing_address(file_addr address) const;
