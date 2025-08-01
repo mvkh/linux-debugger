@@ -355,14 +355,14 @@ sdb::file_addr sdb::attr::as_address() const
 
 std::uint32_t sdb::attr::as_section_offset() const
 {
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
     if (form_ != DW_FORM_addr) error::send("Invalid offset type");
     return cur.u32();
 }
 
 std::uint64_t sdb::attr::as_int() const
 {
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
 
     switch(form_)
     {
@@ -383,7 +383,7 @@ std::uint64_t sdb::attr::as_int() const
 sdb::span<const std::byte> sdb::attr::as_block() const
 {
     std::size_t size;
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
 
     switch(form_)
     {
@@ -404,7 +404,7 @@ sdb::span<const std::byte> sdb::attr::as_block() const
 sdb::die sdb::attr::as_reference() const
 {
     std::size_t offset;
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
 
     switch(form_)
     {
@@ -440,7 +440,7 @@ sdb::die sdb::attr::as_reference() const
 
 std::string_view sdb::attr::as_string() const
 {
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
 
     switch(form_)
     {
