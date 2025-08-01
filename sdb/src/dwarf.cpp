@@ -263,7 +263,7 @@ const std::unordered_map<std::uint64_t, sdb::abbrev>& sdb::compile_unit::abbrev_
     return parent_->get_abbrev_table(abbrev_offset_);
 }
 
-sdb::dwarf::dwarf(const sdb::elf& parent): elf_(parent)
+sdb::dwarf::dwarf(const sdb::elf& parent): elf_(&parent)
 {
     compile_units_ = parse_compile_units(*this, parent);
 }
