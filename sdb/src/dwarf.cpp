@@ -576,11 +576,11 @@ bool sdb::die::contains_address(file_addr address) const
 
     if (contains(DW_AT_ranges)) 
     {
-        return (*this)[DW_AT_RANGES].as_range_list().contains(address);
+        return (*this)[DW_AT_ranges].as_range_list().contains(address);
 
     } else if (contains(DW_AT_low_pc)) {
 
-        return ((low_pc() <= address) and (high_pc() > adddress));
+        return ((low_pc() <= address) and (high_pc() > address));
     }
 
     return false;
