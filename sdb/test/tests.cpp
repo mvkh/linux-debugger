@@ -573,7 +573,7 @@ TEST_CASE("Find main", "[dwarf]")
     REQUIRE(found);
 }
 
-TEST_CASE("Find main", "[dwarf]")
+TEST_CASE("Range list", "[dwarf]")
 {
     auto path = "targets/multi_cu";
     sdb::elf elf(path);
