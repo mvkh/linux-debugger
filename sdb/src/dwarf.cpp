@@ -2,6 +2,7 @@
 #include <libsdb/types.hpp>
 #include <libsdb/bit.hpp>
 #include <libsdb/error.hpp>
+#include <libsdb/elf.hpp>
 #include <string_view>
 #include <algorithm>
 
@@ -130,7 +131,7 @@ namespace
                     case DW_FORM_string:
 
                         while ((!finished()) && (*pos_ != std::byte(0))) ++pos_;
-                        ++pos;
+                        ++pos_;
                         break;
 
                     case DW_FORM_indirect:  skip_form(uleb128());
