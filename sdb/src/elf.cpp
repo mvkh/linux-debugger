@@ -39,6 +39,8 @@ sdb::elf::elf(const std::filesystem::path& path)
     build_section_map();
     parse_symbol_table();
     build_symbol_maps();
+
+    dwarf_ = std::make_unique(*this);
 }
 
 sdb::elf::~elf()
