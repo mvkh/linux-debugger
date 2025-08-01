@@ -498,7 +498,7 @@ sdb::file_addr sdb::die::high_pc() const
     error::send("DIE does not have high PC");
 }
 
-sdb::range_list::iterator(const compile_unit* cu, span<const std::byte> data, file_addr base_address):
+sdb::range_list::iterator::iterator(const compile_unit* cu, span<const std::byte> data, file_addr base_address):
     cu_(cu), data_(data), base_address_(base_address), pos_(data.begin()) 
 {
     ++(*this);
