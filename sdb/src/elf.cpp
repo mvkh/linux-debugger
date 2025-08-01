@@ -8,6 +8,7 @@
 #include <libsdb/elf.hpp>
 #include <libsdb/error.hpp>
 #include <libsdb/bit.hpp>
+#include <libsdb/dwarf.hpp>
 
 sdb::elf::elf(const std::filesystem::path& path)
 {
