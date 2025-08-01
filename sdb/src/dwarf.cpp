@@ -347,7 +347,7 @@ sdb::attr sdb::die::operator[](std::uint64_t attribute) const
 
 sdb::file_addr sdb::attr::as_address() const
 {
-    cursor cur({location_, cu_->data()->end()});
+    cursor cur({location_, cu_->data().end()});
     if (form_ != DW_FORM_addr) error::send("Invalid address type");
     auto elf = cu_->dwarf_info()->elf_file();
     return file_addr{*elf, cur.u64()};
