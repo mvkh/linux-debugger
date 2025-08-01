@@ -524,7 +524,7 @@ TEST_CASE("Correct DWARF language", "[dwarf]")
 {
     auto path = "targets/hello_sdb";
     sdb::elf elf(path);
-    auto compile_units = elf.get_dwarf().compile_units();
+    auto& compile_units = elf.get_dwarf().compile_units();
     REQUIRE(compile_units.size() == 1);
 
     auto& cu = compile_units[0];
@@ -536,7 +536,7 @@ TEST_CASE("Iterate DWARF", "[dwarf]")
 {
     auto path = "targets/hello_sdb";
     sdb::elf elf(path);
-    auto compile_units = elf.get_dwarf().compile_units();
+    auto& compile_units = elf.get_dwarf().compile_units();
     REQUIRE(compile_units.size() == 1);
 
     auto& cu = compile_units[0];
