@@ -66,7 +66,7 @@ namespace sdb
 
             iterator(const compile_unit* cu, span<const std::byte> data, file_addr base_address);
 
-            iterator() = default();
+            iterator() = default;
             iterator(const iterator&) = default;
             iterator& operator=(const iterator&) = default;
 
