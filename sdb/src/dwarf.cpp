@@ -316,7 +316,7 @@ sdb::die::children_range::iterator& sdb::die::children_range::iterator::operator
     return *this;
 }
 
-sdb::die::children_range::iterator& sdb::die::children_range::iterator::operator++(int)
+sdb::die::children_range::iterator sdb::die::children_range::iterator::operator++(int)
 {
     auto tmp = *this;
     ++(*this);
