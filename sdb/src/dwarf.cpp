@@ -484,7 +484,7 @@ sdb::file_addr sdb::die::high_pc() const
     } else if (contains(DW_AT_high_pc)) {
 
         auto attr = (*this)[DW_AT_high_pc];
-        std::uint64_t addr;
+        file_addr addr;
         if (attr.form() == DW_FORM_addr)
         {
             addr = attr.as_address();
