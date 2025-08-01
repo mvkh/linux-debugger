@@ -601,7 +601,7 @@ std::optional<sdb::die> sdb::dwarf::function_containing_address(file_addr addres
     index();
     for (auto& [name, entry]: function_index_)
     {
-        cursor cur({entry.pos, entry.cu->data()->end()});
+        cursor cur({entry.pos, entry.cu->data().end()});
         auto d = parse_die(*entry.cu, cur);
         if (d.contains_address(address) and (d.abbrev_entry()->tag == DW_TAG_subprogram)) return d;
     }
@@ -632,7 +632,7 @@ void sdb::dwarf::index() const
 
     for (auto& cu: compile_units_)
     {
-        idex_die(cu->root());
+        index_die(cu->root());
     }
 }
 
