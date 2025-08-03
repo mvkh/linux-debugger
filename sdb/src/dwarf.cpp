@@ -435,7 +435,7 @@ sdb::file_addr sdb::attr::as_address() const
 std::uint32_t sdb::attr::as_section_offset() const
 {
     cursor cur({location_, cu_->data().end()});
-    if (form_ != DW_FORM_addr) error::send("Invalid offset type");
+    if (form_ != DW_FORM_sec_offset) error::send("Invalid offset type");
     return cur.u32();
 }
 
