@@ -900,7 +900,7 @@ std::vector<sdb::line_table::iterator> sdb::line_table::get_entries_by_line(std:
     {
         auto& entry_path = it->file_entry->path;
         if ((it->line == line) and ((path.is_absolute() and (entry_path == path)) or (path.is_relative() and path_ends_in(entry_path, path)))) 
-            entries.push_back(it)
+            entries.push_back(it);
     }
 
     return entries;
@@ -919,7 +919,7 @@ const sdb::line_table::file& sdb::die::file() const
     return this->cu_->lines().file_names()[idx - 1];
 }
 
-std::uint64_t line() const
+std::uint64_t sdb::die::line() const
 {
     if (abbrev_->tag == DW_TAG_inlined_subroutine) return (*this)[DW_AT_call_line].as_int();
     return (*this)[DW_AT_decl_line].as_int();
