@@ -331,7 +331,7 @@ const std::unordered_map<std::uint64_t, sdb::abbrev>& sdb::dwarf::get_abbrev_tab
     return abbrev_tables_.at(offset);
 }
 
-compile_unit(dwarf& parent, span<const std::byte> data, std::size_t abbrev_offset): 
+sdb::compile_unit::compile_unit(dwarf& parent, span<const std::byte> data, std::size_t abbrev_offset): 
     parent_(&parent), data_(data), abbrev_offset_(abbrev_offset) 
 {
     line_table_ = parse_line_table(*this);
