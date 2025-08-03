@@ -142,7 +142,7 @@ namespace
     };
 
     sdb::line_table::file parse_line_table_file(cursor& cur, std::filesystem::path compilation_dir,
-        std::vector<std::filesystem::path>& include_directories)
+        const std::vector<std::filesystem::path>& include_directories)
     {
         auto file = cur.string();
         auto dir_index = cur.uleb128();
