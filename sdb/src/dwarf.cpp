@@ -159,7 +159,7 @@ namespace
         return {path.string(), modification_time, file_length};
     }
 
-    std::unique_ptr<sdb::line_table> patse_line_table(const sdb::compile_unit& cu)
+    std::unique_ptr<sdb::line_table> parse_line_table(const sdb::compile_unit& cu)
     {
         auto section = cu.dwarf_info()->elf_file()->get_section_contents(".debug_line");
         if (!cu.root().contains(DW_AT_stmt_list)) return nullptr;
@@ -201,7 +201,7 @@ namespace
 
         sdb::span<const std::byte> data{cur.position(), end};
         return std::make_unique<sdb::line_table>(data, &cu, default_is_stmt, line_base, line_range, opcode_base,
-            std::move(include_directories), std::move(filw_names));
+            std::move(include_directories), std::move(file_names));
     }
 
     std::unordered_map<std::uint64_t, sdb::abbrev> parse_abbrev_table(const sdb::elf& obj, std::size_t offset)
