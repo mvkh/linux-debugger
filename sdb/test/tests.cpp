@@ -612,7 +612,7 @@ TEST_CASE("Range list", "[dwarf]")
 
 TEST_CASE("Line table", "[dwarf]")
 {
-    auto path = "targets/multi_cu";
+    auto path = "targets/hello_sdb";
     sdb::elf elf(path);
     sdb::dwarf dwarf(elf);
 
