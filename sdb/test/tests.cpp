@@ -659,7 +659,7 @@ TEST_CASE("Source-level breakpoints", "[breakpoint]")
     {
         if ((lowest_bkpt == nullptr) or (site.address().addr() < lowest_bkpt->address().addr())) lowest_bkpt = &site;
     });
-    lowest_bkpt->disable;
+    lowest_bkpt->disable();
 
     proc.resume();
     proc.wait_on_signal();
@@ -674,6 +674,6 @@ TEST_CASE("Source-level breakpoints", "[breakpoint]")
     proc.resume();
     auto reason = proc.wait_on_signal();
 
-    REQUIRE(reason.reason = sdb::process_state::exited);
+    REQUIRE(reason.reason == sdb::process_state::exited);
     close(dev_null);
 }
