@@ -86,7 +86,7 @@ namespace sdb
             std::filesystem::path file_;
             std::size_t line_;
 
-            line_breakpoint(target& tgt, std::filesystem::path file, std::size_t size, bool is_hardware = false, bool is_internal = false):
+            line_breakpoint(target& tgt, std::filesystem::path file, std::size_t line, bool is_hardware = false, bool is_internal = false):
                 breakpoint(tgt, is_hardware, is_internal), file_(std::move(file)), line_(line)
             {
                 resolve();
