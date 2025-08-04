@@ -75,7 +75,7 @@ namespace sdb
             void resolve() override;
 
             std::string_view function_name() const { return function_name_; }
-    }
+    };
 
     class line_breakpoint: public breakpoint
     {
@@ -98,7 +98,7 @@ namespace sdb
 
             const std::filesystem::path file() const { return file_; }
             std::size_t line() const { return line_; }
-    }
+    };
 
     class address_breakpoint: public breakpoint
     {
@@ -119,7 +119,7 @@ namespace sdb
             void resolve() override;
 
             virt_addr address() const { return address_; }
-    }
+    };
 }
 
 #endif
