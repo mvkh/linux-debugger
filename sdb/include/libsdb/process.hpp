@@ -16,6 +16,8 @@
 
 namespace sdb 
 {
+    class target;
+
     enum class trap_type
     {
         single_step, software_break, hardware_break, syscall, unknown
@@ -43,12 +45,28 @@ namespace sdb
 
     struct stop_reason 
     {
-        stop_reason(int wait_status);
-
         process_state reason;
         std::uint8_t info;
         std::optional<trap_type> trap_reason;
         std::optional<syscall_information> syscall_info;
+
+        stop_reason(int wait_status);
+        stop_reason() = default;
+        stop_reason(process_state reason, std::uint8_t info, std::optional<trap_type> trap_reason = std::nullopt, 
+            std::optional<syscall_information> syscall_info = std::nullopt):
+            reason(reason), info(info), trap_reason(trap_reason), syscall_info(syscall_info)
+        {}
+
+        bool is_step() const 
+        { 
+            return ((reason == process_state::stopped) and (info == SIGTRAP) and (trap_reason == trap_type::single_step)); 
+        }
+
+        bool is_breakpoint() const 
+        { 
+            return ((reason == process_state::stopped) and (info == SIGTRAP) and 
+                ((trap_reason == trap_type::software_break) or (trap_reason == trap_type::hardware_break))); 
+        }
     };
 
     class syscall_catch_policy
@@ -116,6 +134,8 @@ namespace sdb
             }
 
             breakpoint_site& create_breakpoint_site(virt_addr address, bool hardware = false, bool internal = false);
+            breakpoint_site& create_breakpoint_site(breakpoint* parent, breakpoint_site::id_type id, virt_addr address, 
+                bool hardware = false, bool internal = false);
 
             int set_hardware_breakpoint(breakpoint_site::id_type id, virt_addr address);
 
@@ -154,6 +174,8 @@ namespace sdb
 
             std::unordered_map<int, std::uint64_t> get_auxv() const;
 
+            void set_target(target* tgt) { target_ = tgt; }
+
         private:
             process(pid_t pid, bool terminate_on_end, bool is_attached)
                 : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached), registers_(new registers(*this)) {}
@@ -175,6 +197,7 @@ namespace sdb
             stoppoint_collection<watchpoint> watchpoints_;
             syscall_catch_policy syscall_catch_policy_ = syscall_catch_policy::catch_none();
             bool expecting_syscall_exit_ = false;
+            target* target_ = nullptr;
     };
 }
 

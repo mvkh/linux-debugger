@@ -282,6 +282,8 @@ namespace sdb
                 if (!cu) return {};
                 return cu->lines().get_entry_by_address(address);
             }
+
+            std::vector<die> inline_stack_at_address(file_addr address) const;
     };
 
     struct source_location

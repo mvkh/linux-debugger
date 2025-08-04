@@ -1,6 +1,7 @@
 #include <libsdb/process.hpp>
 #include <libsdb/error.hpp>
 #include <libsdb/pipe.hpp>
+#include <libsdb/target.hpp>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -73,6 +74,16 @@ sdb::breakpoint_site& sdb::process::create_breakpoint_site(virt_addr address, bo
     }
 
     return breakpoint_sites_.push(std::unique_ptr<breakpoint_site>(new breakpoint_site(*this, address, hardware, internal)));
+}
+
+sdb::breakpoint_site& create_breakpoint_site(breakpoint* parent, breakpoint_site::id_type id, virt_addr address, bool hardware, bool internal)
+{
+    if (breakpoint_sites_.contains_address(address))
+    {
+        error::send("Breakpoint site already created at address " + std::to_string(address.addr()));
+    }
+
+    return breakpoint_sites_.push(std::unique_ptr<breakpoint_site>(new breakpoint_site(parent, id, *this, address, hardware, internal)));
 }
 
 int sdb::process::set_hardware_stoppoint(virt_addr address, stoppoint_mode mode, std::size_t size)
@@ -313,7 +324,8 @@ sdb::stop_reason sdb::process::wait_on_signal()
         auto instr_begin = get_pc() - 1;
         if (reason.info == SIGTRAP)
         {
-            if ((reason.trap_reason == trap_type::software_break) and breakpoint_sites_.contains_address(instr_begin) and breakpoint_sites_.get_by_address(instr_begin).is_enabled())
+            if ((reason.trap_reason == trap_type::software_break) and breakpoint_sites_.contains_address(instr_begin) 
+                and breakpoint_sites_.get_by_address(instr_begin).is_enabled())
             {
                 set_pc(instr_begin);
 
@@ -330,6 +342,8 @@ sdb::stop_reason sdb::process::wait_on_signal()
                 reason = maybe_resume_from_syscall(reason);
             }
         }
+
+        if (target_) target_->notify_stop(reason);
     }
 
     return reason;
