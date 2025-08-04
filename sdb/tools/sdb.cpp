@@ -160,7 +160,7 @@ namespace
         auto line = target.line_entry_at_pc();
         if (line != sdb::line_table::iterator())
         {
-            auto file = line->file_entry->path.filename().string;
+            auto file = line->file_entry->path.filename().string();
             message += fmt::format(", {}:{}", file, line->line);
         }
 
@@ -213,28 +213,6 @@ namespace
         }
     }
 
-    void handle_stop(sdb::target& target, sdb::stop_reason reason)
-    {
-        print_stop_reason(target, reason);
-        if (reason.reason == sdb::process_state::stopped)
-        {
-            if (target.get_stack().inline_height() > 0)
-            {
-                auto stack = target.get_stack().inline_stack_at_pc();
-                auto frame = stack[stack.size() - target.get_stack().inline_height()];
-                print_source(frame.file().path, frame.line(). 3);
-
-            } else if (auto entry = target.line_entry_at_pc(); entry != sdb::line_table::iterator()) {
-
-                print_source(entry->file_entry->path, entry->line, 3);
-
-            } else {
-                
-                print_disassembly(target.get_process(), target.get_process().get_pc(), 5);
-            }
-        }
-    }
-
     void print_source(const std::filesystem::path& path, std::uint64_t line, std::uint64_t n_lines_context)
     {
         std::ifstream file{path.string()};
@@ -264,6 +242,28 @@ namespace
         }
 
         std::cout << std::endl;
+    }
+
+    void handle_stop(sdb::target& target, sdb::stop_reason reason)
+    {
+        print_stop_reason(target, reason);
+        if (reason.reason == sdb::process_state::stopped)
+        {
+            if (target.get_stack().inline_height() > 0)
+            {
+                auto stack = target.get_stack().inline_stack_at_pc();
+                auto frame = stack[stack.size() - target.get_stack().inline_height()];
+                print_source(frame.file().path, frame.line(), 3);
+
+            } else if (auto entry = target.line_entry_at_pc(); entry != sdb::line_table::iterator()) {
+
+                print_source(entry->file_entry->path, entry->line, 3);
+
+            } else {
+                
+                print_disassembly(target.get_process(), target.get_process().get_pc(), 5);
+            }
+        }
     }
 
     void print_help(const std::vector<std::string>& args)
