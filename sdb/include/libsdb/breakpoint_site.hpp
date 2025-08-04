@@ -34,6 +34,7 @@ namespace sdb
 
         private:
 
+            breakpoint_site(process& proc, virt_addr address, bool is_hardware = false, bool is_internal = false);
             breakpoint_site(breakpoint* parent, id_type id, process& proc, virt_addr address, bool is_hardware = false, bool is_internal = false);
             friend process;
 
