@@ -74,7 +74,7 @@ sdb::stop_reason sdb::target::step_in()
             if (line != line_table::iterator{})
             {
                 ++line;
-                return run_until_address(line->address.to_virt_address());
+                return run_until_address(line->address.to_virt_addr());
             }
         }
     }
