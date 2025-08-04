@@ -228,7 +228,7 @@ namespace
         {
             auto arrow = (current_line == line) ? ">" : " ";
             fmt::print("{} {:>{}}", arrow, current_line, fill_width);
-        }
+        };
 
         print_line_start(current_line);
         while ((current_line <= end_line) && file.get(c))
