@@ -148,7 +148,7 @@ sdb::stop_reason sdb::target::step_over()
             reason = run_until_address(return_address);
             if ((!reason.is_step()) or (process_->get_pc() != return_address)) return reason;
 
-        } else if (auto instructions = disas.disassemble(2, process_->get_pc()); instructions[0].test.rfind("call") == 0) {
+        } else if (auto instructions = disas.disassemble(2, process_->get_pc()); instructions[0].text.rfind("call") == 0) {
 
             reason = run_until_address(instructions[1].address);
             if ((!reason.is_step()) or (process_->get_pc() != instructions[1].address)) return reason;
