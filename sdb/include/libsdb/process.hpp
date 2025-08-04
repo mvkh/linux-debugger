@@ -9,6 +9,7 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <csignal>
 #include <libsdb/breakpoint_site.hpp>
 #include <libsdb/stoppoint_collection.hpp>
 #include <libsdb/bit.hpp>
