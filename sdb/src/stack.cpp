@@ -19,7 +19,7 @@ void sdb::stack::reset_inline_height()
     for (auto it = stack.rbegin(); (it != stack.rend()) and (it->low_pc() == pc); ++it) ++inline_height_;
 }
 
-sdb::span<const stack_frame> sdb::stack::frames() const
+sdb::span<const sdb::stack_frame> sdb::stack::frames() const
 {
     return { frames_.data() + inline_height_, frames_.size() - inline_height_ };
 }
