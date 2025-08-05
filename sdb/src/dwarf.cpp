@@ -663,7 +663,7 @@ namespace
     {
         auto unwound_regs = old_regs;
         auto cfa_reg_info = sdb::register_info_by_dwarf(ctx.cfa_rule.reg);
-        auto cfa = std::get<std::uint64_t>(old_regs.read(cfa_reg_info) + ctx.cfa_rule.offset);
+        auto cfa = std::get<std::uint64_t>(old_regs.read(cfa_reg_info)) + ctx.cfa_rule.offset;
         old_regs.set_cfa(sdb::virt_addr{cfa});
         unwound_regs.write_by_id(sdb::register_id::rsp, {cfa}, false);
 
