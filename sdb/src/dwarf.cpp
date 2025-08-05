@@ -444,7 +444,7 @@ namespace
         }
 
         sdb::span<const std::byte> instructions = { cur.position(), start + length };
-        return {legth, &cie, initial_location, address_range, instructions};
+        return {length, &cie, initial_location, address_range, instructions};
     }
 
     sdb::call_frame_information::eh_hdr parse_eh_hdr(sdb::dwarf& dwarf)
