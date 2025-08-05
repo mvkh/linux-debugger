@@ -384,7 +384,7 @@ namespace
         if (version == 4)
         {
             auto address_size = cur.u8();
-            auto segment_size = cur.u8;
+            auto segment_size = cur.u8();
             if (address_size != 8) sdb::error::send("Invalid address size");
             if (segment_size != 8) sdb::error::send("Invalid segment size");
         }
