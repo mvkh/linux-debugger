@@ -481,50 +481,6 @@ namespace
         }
     }
 
-    const std::byte* sdb::call_frame_information::eh_hdr::operator[](file_addr address) const
-    {
-        auto elf = address.elf_file();
-        auto text_section_start = *elf->get_section_start_address(".text");
-        auto encoding_size = eh_frame_pointer_encoding_size(encoding);
-        auto row_size = encoding_size * 2;
-
-        std::size_t low = 0;
-        std::size_t high = count - 1;
-        while (low <= high)
-        {
-            std::size_t mid = (low + high) / 2;
-
-            cursor cur({search_table + mid * row_size, search_table + count * row_size});
-            auto current_offset = elf->data_pointer_as_file_offset(cur.position());
-            auto eh_hdr_offset = elf->data_pointer_as_file_offset(start);
-            auto entry_address = parse_eh_frame_pointer(*elf, cur, encoding, current_offset.off(), 
-                text_section_start.addr(), eh_hdr_offset.off(), 0);
-            
-            if (entry_address < address.addr())
-            {
-                low = mid + 1;
-
-            } else if (entry_address > address.addr) {
-
-                if (mid == 0) sdb::error::send("Address not found in eh_hdr");
-                high = mid - 1;
-
-            } else {
-
-                high = mid;
-                break;
-            }
-        }
-
-        cursor cur({search_table + high * row_size + encoding_size, search_table + count * row_size});
-        auto current_offset = elf->data_pointer_as_file_offset(cur.position());
-        auto eh_hdr_offset = elf->data_pointer_as_file_offset(start);
-        auto fde_offset_int = parse_eh_frame_pointer(*elf, cur, encoding, current_offset.off(), 
-            text_section_start.addr(), eh_hdr_offset.off(), 0);
-        sdb::file_offset fde_offset{*elf, fde_offset_int};
-        return elf->file_offset_as_data_pointer(fde_offset);
-    }
-
     std::unique_ptr<sdb::call_frame_information> parse_call_frame_information(sdb::dwarf& dwarf)
     {
         auto eh_hdr = parse_eh_hdr(dwarf);
@@ -1168,4 +1124,48 @@ const sdb::call_frame_information::common_information_entry& sdb::call_frame_inf
     auto cie = parse_cie(cur);
     cie_map_.emplace(offset, cie);
     return cie_map_.at(offset);
+}
+
+const std::byte* sdb::call_frame_information::eh_hdr::operator[](file_addr address) const
+{
+    auto elf = address.elf_file();
+    auto text_section_start = *elf->get_section_start_address(".text");
+    auto encoding_size = eh_frame_pointer_encoding_size(encoding);
+    auto row_size = encoding_size * 2;
+
+    std::size_t low = 0;
+    std::size_t high = count - 1;
+    while (low <= high)
+    {
+        std::size_t mid = (low + high) / 2;
+
+        cursor cur({search_table + mid * row_size, search_table + count * row_size});
+        auto current_offset = elf->data_pointer_as_file_offset(cur.position());
+        auto eh_hdr_offset = elf->data_pointer_as_file_offset(start);
+        auto entry_address = parse_eh_frame_pointer(*elf, cur, encoding, current_offset.off(), 
+            text_section_start.addr(), eh_hdr_offset.off(), 0);
+        
+        if (entry_address < address.addr())
+        {
+            low = mid + 1;
+
+        } else if (entry_address > address.addr()) {
+
+            if (mid == 0) sdb::error::send("Address not found in eh_hdr");
+            high = mid - 1;
+
+        } else {
+
+            high = mid;
+            break;
+        }
+    }
+
+    cursor cur({search_table + high * row_size + encoding_size, search_table + count * row_size});
+    auto current_offset = elf->data_pointer_as_file_offset(cur.position());
+    auto eh_hdr_offset = elf->data_pointer_as_file_offset(start);
+    auto fde_offset_int = parse_eh_frame_pointer(*elf, cur, encoding, current_offset.off(), 
+        text_section_start.addr(), eh_hdr_offset.off(), 0);
+    sdb::file_offset fde_offset{*elf, fde_offset_int};
+    return elf->file_offset_as_data_pointer(fde_offset);
 }
