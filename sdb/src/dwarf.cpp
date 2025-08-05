@@ -1381,7 +1381,7 @@ const std::byte* sdb::call_frame_information::eh_hdr::operator[](file_addr addre
     return elf->file_offset_as_data_pointer(fde_offset);
 }
 
-sdb::registers sdb::call_frame::information::unwind(const process& proc, file_addr pc, registers& regs) const
+sdb::registers sdb::stack::unwind(const process& proc, file_addr pc, registers& regs) const
 {
     auto fde_start = eh_hdr_[pc];
     auto eh_frame_end = dwarf_->elf_file()->get_section_contents(".eh_frame").end();
