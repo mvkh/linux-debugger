@@ -390,7 +390,7 @@ namespace
         }
 
         auto code_alignment_factor = cur.uleb128();
-        auto data_alignment_factor = cur.uleb128();
+        auto data_alignment_factor = cur.sleb128();
         auto return_address_register = (version == 1) ? cur.u8() : cur.uleb128();
         std::uint8_t fde_pointer_encoding = DW_EH_PE_udata8 | DW_EH_PE_absptr;
         for (auto c: augmentation)
