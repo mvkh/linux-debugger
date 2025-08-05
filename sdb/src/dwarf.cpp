@@ -1401,5 +1401,5 @@ sdb::registers sdb::call_frame_information::unwind(const process& proc, file_add
 
     while ((!ctx.cur.finished()) and (ctx.location <= pc)) execute_cfi_instruction(*dwarf_->elf_file(), fde, ctx, pc);
 
-    return execute_unwind_rules(ctx, reg, proc);
+    return execute_unwind_rules(ctx, regs, proc);
 }
