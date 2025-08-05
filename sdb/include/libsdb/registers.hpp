@@ -13,16 +13,16 @@ namespace sdb
     class registers
     {
         public:
-            registers() = delete;
-            registers(const registers&) = delete;
-            registers& operator=(const registers&) = delete;
+            registers() = default;
+            registers(const registers&) = default;
+            registers& operator=(const registers&) = default;
 
             using value = std::variant<
                 std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t, 
                 std::int8_t, std::int16_t, std::int32_t, std::int64_t,
                 float, double, long double, byte64, byte128>;
             value read(const register_info& info) const;
-            void write(const register_info& info, value val);
+            void write(const register_info& info, value val, bool commit = true);
 
             template <class T>
             T read_by_id_as(register_id id) const
@@ -30,10 +30,17 @@ namespace sdb
                 return std::get<T>(read(register_info_by_id(id)));
             }
 
-            void write_by_id(register_id id, value val)
+            void write_by_id(register_id id, value val, bool commit = true)
             {
-                write(register_info_by_id(id), val);
+                write(register_info_by_id(id), val, commit);
             }
+
+            bool is_undefined(register_id id) const;
+            void undefine(register_id id);
+
+            virt_addr cfa() const { return cfa_; }
+            void set_cfa(virt_addr addr) { cfa_ = addr; }
+            void flush();
 
         private:
             friend process;
@@ -41,6 +48,8 @@ namespace sdb
 
             user data_;
             process* proc_;
+            std::vector<std::size_t> undefined_;
+            virt_addr cfa_;
     };
 }
 

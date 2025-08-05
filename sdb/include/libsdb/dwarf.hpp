@@ -3,6 +3,7 @@
 
 #include <libsdb/detail/dwarf.h>
 #include <libsdb/types.hpp>
+#include <libsdb/registers.hpp>
 #include <unordered_map>
 #include <memory>
 #include <optional>
@@ -15,6 +16,7 @@ namespace sdb
     class dwarf;
     class die;
     class compile_unit;
+    class process;
 
     class range_list 
     {
@@ -287,6 +289,8 @@ namespace sdb
             const common_information_entry& get_cie(file_offset at) const;
 
             call_frame_information(const dwarf* dwarf, eh_hdr hdr): dwarf_(dwarf), eh_hdr_(hdr) { eh_hdr_.parent = this; }
+
+            registers unwind(const process& proc, file_addr pc, registers& regs) const;
 
         private:
 
