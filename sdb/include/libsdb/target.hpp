@@ -22,8 +22,7 @@ namespace sdb
             stoppoint_collection<breakpoint> breakpoints_;
             virt_addr dynamic_linker_rendezvous_address_;
 
-            target(std::unique_ptr<process> proc, std::unique_ptr<elf> obj): process_(std::move(proc)), elf_(std::move(obj)), stack_(this),
-                main_elf_(obj.get()) 
+            target(std::unique_ptr<process> proc, std::unique_ptr<elf> obj): process_(std::move(proc)), stack_(this), main_elf_(obj.get()) 
             {
                 elves_.push(std::move(obj));
             }
