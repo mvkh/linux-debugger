@@ -249,6 +249,6 @@ const sdb::elf* sdb::elf_collection::get_elf_by_path(std::filesystem::path path)
 
 const sdb::elf* sdb::elf_collection::get_elf_by_filename(std::string_view name) const
 {
-    for (auto& elf: elves_) if (elf->filename() == name) return elf.get();
+    for (auto& elf: elves_) if (elf->path().filename() == name) return elf.get();
     return nullptr;
 }
