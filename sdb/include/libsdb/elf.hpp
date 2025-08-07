@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <optional>
 #include <map>
+#include <string_view>
 #include <libsdb/types.hpp>
 
 namespace sdb
@@ -78,6 +79,28 @@ namespace sdb
             file_offset data_pointer_as_file_offset(const std::byte* ptr) const { return file_offset(*this, ptr - data_); }
             const std::byte* file_offset_as_data_pointer(file_offset offset) const { return data_ + offset.off(); }
     };
+
+    class elf_collection 
+    {
+        private:
+
+            std::vector<std::unique_ptr<elf>> elves_;
+
+        public:
+
+            void push(std::unique_ptr<elf> elf) { elves_.push_back(std::move(elf)); }
+
+            template <class F> void for_each(F f);
+            template <class F> void for_each(F f) const;
+
+            const elf* get_elf_containing_address(virt_addr address) const;
+            const elf* get_elf_by_path(std::filesystem::path path) const;
+            const elf* get_elf_by_filename(std::string_view name) const;
+    };
+
+    template <class F> void elf_collection::for_each(F f) { for (auto& elf: elves_) f(*elf); }
+
+    template <class F> void elf_collection::for_each(F f) const { for (auto& elf: elves_) f(*elf); }
 }
 
 #endif

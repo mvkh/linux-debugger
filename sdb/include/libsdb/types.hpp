@@ -18,6 +18,7 @@ namespace sdb
     };
 
     class elf;
+    class elf_collection;
     class file_addr;
 
     class virt_addr
@@ -47,6 +48,7 @@ namespace sdb
             bool operator>=(const virt_addr& other) const { return (addr_ >= other.addr_); }
 
             file_addr to_file_addr(const elf& obj) const;
+            file_addr to_file_addr(const elf_collection& elves) const;
     };
 
     class file_addr
