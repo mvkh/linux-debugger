@@ -689,18 +689,18 @@ TEST_CASE("Source-level stepping", "[target]")
     proc.wait_on_signal();
 
     auto pc = proc.get_pc();
-    REQUIRE(target->function_name_at_address(pc) == "main");
+    REQUIRE(target->function_name_at_address(pc) == "step`main");
 
     target->step_over();
 
     auto new_pc = proc.get_pc();
     REQUIRE(new_pc != pc);
-    REQUIRE(target->function_name_at_address(new_pc) == "main");
+    REQUIRE(target->function_name_at_address(new_pc) == "step`main");
 
     target->step_in();
 
     pc = proc.get_pc();
-    REQUIRE(target->function_name_at_address(pc) == "find_happiness");
+    REQUIRE(target->function_name_at_address(pc) == "step`find_happiness");
     REQUIRE(target->get_stack().inline_height() == 2);
 
     target->step_in();
@@ -713,12 +713,12 @@ TEST_CASE("Source-level stepping", "[target]")
 
     new_pc = proc.get_pc();
     REQUIRE(new_pc != pc);
-    REQUIRE(target->function_name_at_address(new_pc) == "find_happiness");
+    REQUIRE(target->function_name_at_address(new_pc) == "step`find_happiness");
 
     target->step_out();
 
     pc = proc.get_pc();
-    REQUIRE(target->function_name_at_address(pc) == "main");
+    REQUIRE(target->function_name_at_address(pc) == "step`main");
     close(dev_null);
 }
 
@@ -735,4 +735,21 @@ TEST_CASE("Stack unwinding", "[unwind]")
     std::vector<std::string_view> expected_names = {"scratch_ears", "pet_cat", "find_happiness", "main"};
     auto frames = target->get_stack().frames();
     for (auto i = 0; i < frames.size(); i++) REQUIRE(frames[i].func_die.name().value() == expected_names[i]);
+}
+
+TEST_CASE("Shared library tracing works", "[dynlib]")
+{
+    auto dev_null = open("/dev/null", O_WRONLY);
+    auto target = target::launch("targets/marshmallow", dev_null);
+    auto& proc = target->get_process();
+
+    target->create_function_breakpoint("libmeow_client_is_cute").enable();
+    proc.resume();
+    proc.wait_on_signal()
+
+    REQUIRE(target->get_stack().frames().size() == 2);
+    REQUIRE(target->get_stack().frames()[0].func_die.name().value() == "libmeow_client_is_cute");
+    REQUIRE(target->get_stack().frames()[1].func_die.name().value() == "main");
+    REQUIRE(target->get_pc_file_address().elf_file()->path().filename() == "libmeow.so");
+    close(dev_null);
 }
