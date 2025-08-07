@@ -227,7 +227,7 @@ namespace
         auto print_line_start = [&](auto current_line)
         {
             auto arrow = (current_line == line) ? ">" : " ";
-            fmt::print("{} {:>{}}", arrow, current_line, fill_width);
+            fmt::print("{} {:>{}} ", arrow, current_line, fill_width);
         };
 
         print_line_start(current_line);
