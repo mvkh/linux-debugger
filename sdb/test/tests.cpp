@@ -745,7 +745,7 @@ TEST_CASE("Shared library tracing works", "[dynlib]")
 
     target->create_function_breakpoint("libmeow_client_is_cute").enable();
     proc.resume();
-    proc.wait_on_signal()
+    proc.wait_on_signal();
 
     REQUIRE(target->get_stack().frames().size() == 2);
     REQUIRE(target->get_stack().frames()[0].func_die.name().value() == "libmeow_client_is_cute");
