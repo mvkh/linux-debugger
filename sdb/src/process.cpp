@@ -395,64 +395,121 @@ sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
     return reason;
 }
 
-std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
-{
+// std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
+// {
+//     auto tid = reason.tid;
+
+//     if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
+
+//     if (is_attached_ and (reason.reason == process_state::stopped))
+//     {
+//         if (!threads_.count(tid))
+//         {
+//             threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
+//             report_thread_lifecycle_event(reason);
+//             if (is_main_stop) return std::nullopt;
+//         }
+
+//         if (threads_.at(tid).pending_sigstop and (reason.info == SIGSTOP))
+//         {
+//             threads_.at(tid).pending_sigstop = false;
+//             return std::nullopt;
+//         }
+
+//         read_all_registers(tid);
+//         augment_stop_reason(reason);
+
+//         if (reason.info == SIGTRAP)
+//         {
+//             auto instr_begin = get_pc(tid) - 1;
+//             if ((reason.trap_reason == trap_type::software_break) && breakpoint_sites_.contains_address(instr_begin) 
+//                 && breakpoint_sites_.get_by_address(instr_begin).is_enabled())
+//             {
+//                 set_pc(instr_begin, tid);
+
+//                 auto& bp = breakpoint_sites_.get_by_address(instr_begin);
+//                 if (bp.parent_)
+//                 {
+//                     bool should_restart = bp.parent_->notify_hit();
+//                     if (should_restart && is_main_stop) return std::nullopt;
+//                 }
+
+//             } else if (reason.trap_reason == trap_type::hardware_break) {
+
+//                 auto id = get_current_hardware_stoppoint(tid);
+//                 if (id.index() == 1)
+//                 {
+//                     watchpoints_.get_by_id(std::get<1>(id)).update_data();
+//                 }
+
+//             } else if ((reason.trap_reason == trap_type::syscall) && is_main_stop && should_resume_from_syscall(reason)) {
+
+//                 return std::nullopt;
+//             }
+//         }
+
+//         if (target_) target_->notify_stop(reason);
+//     }
+
+//     return reason;
+// }
+
+std::optional<sdb::stop_reason> sdb::process::handle_signal(
+    stop_reason reason, bool is_main_stop) {
     auto tid = reason.tid;
 
-    if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
-
-    if (is_attached_ and (reason.reason == process_state::stopped))
-    {
-        if (!threads_.count(tid))
-        {
-            threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
+    if (reason.trap_reason and
+        *reason.trap_reason == trap_type::clone and
+        is_main_stop) {
+        return std::nullopt;
+    }
+    if (is_attached_ and reason.reason == process_state::stopped) {
+        if (!threads_.count(tid)) {
+            threads_.emplace(tid, thread_state{ tid, registers(*this, tid) });
             report_thread_lifecycle_event(reason);
-            if (is_main_stop) return std::nullopt;
+            if (is_main_stop) {
+                return std::nullopt;
+            }
         }
-
-        if (threads_.at(tid).pending_sigstop and (reason.info == SIGSTOP))
-        {
+        if (threads_.at(tid).pending_sigstop and reason.info == SIGSTOP) {
             threads_.at(tid).pending_sigstop = false;
             return std::nullopt;
         }
 
         read_all_registers(tid);
         augment_stop_reason(reason);
-
-        if (reason.info == SIGTRAP)
-        {
+        if (reason.info == SIGTRAP) {
             auto instr_begin = get_pc(tid) - 1;
-            if ((reason.trap_reason == trap_type::software_break) && breakpoint_sites_.contains_address(instr_begin) 
-                && breakpoint_sites_.get_by_address(instr_begin).is_enabled())
-            {
+            if (reason.trap_reason == trap_type::software_break and
+                breakpoint_sites_.contains_address(instr_begin) and
+                breakpoint_sites_.get_by_address(instr_begin).is_enabled()) {
                 set_pc(instr_begin, tid);
 
                 auto& bp = breakpoint_sites_.get_by_address(instr_begin);
-                if (bp.parent_)
-                {
+                if (bp.parent_) {
                     bool should_restart = bp.parent_->notify_hit();
-                    if (should_restart && is_main_stop) return std::nullopt;
+                    if (should_restart and is_main_stop) {
+                        return std::nullopt;
+                    }
                 }
-
-            } else if (reason.trap_reason == trap_type::hardware_break) {
-
+            }
+            else if (reason.trap_reason == trap_type::hardware_break) {
                 auto id = get_current_hardware_stoppoint(tid);
-                if (id.index() == 1)
-                {
+                if (id.index() == 1) {
                     watchpoints_.get_by_id(std::get<1>(id)).update_data();
                 }
-
-            } else if ((reason.trap_reason == trap_type::syscall) && is_main_stop && should_resume_from_syscall(reason)) {
-
+            }
+            else if (reason.trap_reason == trap_type::syscall and
+                is_main_stop and
+                should_resume_from_syscall(reason)) {
                 return std::nullopt;
             }
         }
-
         if (target_) target_->notify_stop(reason);
     }
-
     return reason;
 }
+
 
 void sdb::process::report_thread_lifecycle_event(const stop_reason& reason)
 {
@@ -631,99 +688,36 @@ bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
     return false;
 }
 
-// void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
-// {
-//     siginfo_t info;
-//     auto tid = reason.tid;
-//     if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0)
-//     {
-//         error::send_errno("Failed to get signal info");
-//     }
-
-//     if (reason.info == (SIGTRAP | 0x80))
-//     {
-//         auto& sys_info = reason.syscall_info.emplace();
-//         auto& regs = get_registers();
-
-//         if (expecting_syscall_exit_)
-//         {
-//             sys_info.entry = false;
-//             sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
-//             sys_info.ret = regs.read_by_id_as<std::uint64_t>(register_id::rax);
-//             expecting_syscall_exit_ = false;
-
-//         } else {
-
-//             sys_info.entry = true;
-//             sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
-
-//             std::array<register_id, 6> arg_regs = {register_id::rdi, register_id::rsi, register_id::rdx, register_id::r10, register_id::r8, register_id::r9};
-//             for (auto i = 0; i < 6; ++i)
-//             {
-//                 sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(arg_regs[i]);
-//             }
-
-//             expecting_syscall_exit_ = true;
-//         }
-
-//         reason.info = SIGTRAP;
-//         reason.trap_reason = trap_type::syscall;
-//         return;
-//     }
-
-//     expecting_syscall_exit_ = false;
-
-//     reason.trap_reason = trap_type::unknown;
-//     if (reason.info == SIGTRAP)
-//     {
-//         switch (info.si_code)
-//         {
-//             case TRAP_TRACE:
-//                 reason.trap_reason = trap_type::single_step;
-//                 break;
-
-//             case SI_KERNEL:
-//                 reason.trap_reason = trap_type::software_break;
-//                 break;
-
-//             case TRAP_HWBKPT:
-//                 reason.trap_reason = trap_type::hardware_break;
-//                 break;
-//         }
-//     }
-// }
-
-void sdb::process::augment_stop_reason(sdb::stop_reason& reason) {
-    auto tid = reason.tid;
+void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
+{
     siginfo_t info;
-    if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0) {
+    auto tid = reason.tid;
+    if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0)
+    {
         error::send_errno("Failed to get signal info");
     }
 
-	if (reason.info == (SIGTRAP | 0x80)) {
-		auto& sys_info = reason.syscall_info.emplace();
-		auto& regs = get_registers();
+    if (reason.info == (SIGTRAP | 0x80))
+    {
+        auto& sys_info = reason.syscall_info.emplace();
+        auto& regs = get_registers();
 
-        if (expecting_syscall_exit_) {
+        if (expecting_syscall_exit_)
+        {
             sys_info.entry = false;
-            sys_info.id = regs.read_by_id_as<std::uint64_t>(
-                register_id::orig_rax);
-            sys_info.ret = regs.read_by_id_as<std::uint64_t>(
-                register_id::rax);
+            sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
+            sys_info.ret = regs.read_by_id_as<std::uint64_t>(register_id::rax);
             expecting_syscall_exit_ = false;
-        }
-        else {
-            sys_info.entry = true;
-            sys_info.id = regs.read_by_id_as<std::uint64_t>(
-                register_id::orig_rax);
 
-            std::array<register_id, 6> arg_regs = {
-                register_id::rdi, register_id::rsi, register_id::rdx,
-                register_id::r10, register_id::r8, register_id::r9
-            };
-            for (auto i = 0; i < 6; ++i) {
-                sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(
-                    arg_regs[i]);
+        } else {
+
+            sys_info.entry = true;
+            sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
+
+            std::array<register_id, 6> arg_regs = {register_id::rdi, register_id::rsi, register_id::rdx, register_id::r10, register_id::r8, register_id::r9};
+            for (auto i = 0; i < 6; ++i)
+            {
+                sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(arg_regs[i]);
             }
 
             expecting_syscall_exit_ = true;
@@ -737,17 +731,21 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason) {
     expecting_syscall_exit_ = false;
 
     reason.trap_reason = trap_type::unknown;
-    if (reason.info == SIGTRAP) {
-        switch (info.si_code) {
-        case TRAP_TRACE:
-            reason.trap_reason = trap_type::single_step;
-            break;
-        case SI_KERNEL:
-            reason.trap_reason = trap_type::software_break;
-            break;
-        case TRAP_HWBKPT:
-            reason.trap_reason = trap_type::hardware_break;
-            break;
+    if (reason.info == SIGTRAP)
+    {
+        switch (info.si_code)
+        {
+            case TRAP_TRACE:
+                reason.trap_reason = trap_type::single_step;
+                break;
+
+            case SI_KERNEL:
+                reason.trap_reason = trap_type::software_break;
+                break;
+
+            case TRAP_HWBKPT:
+                reason.trap_reason = trap_type::hardware_break;
+                break;
         }
     }
 }
