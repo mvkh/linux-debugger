@@ -666,14 +666,14 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
             expecting_syscall_exit_ = true;
         }
 
-        std::cerr << "Caught a syscall trap with syscall id " << reason.syscall_info.id << endl;
+        std::cerr << "Caught a syscall trap with syscall id " << reason.syscall_info->id << std::endl;
 
         reason.info = SIGTRAP;
         reason.trap_reason = trap_type::syscall;
         return;
     }
 
-    std::cerr << "Not a syscall trap" << endl;
+    std::cerr << "Not a syscall trap" << std::endl;
 
     expecting_syscall_exit_ = false;
 
