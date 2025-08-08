@@ -347,82 +347,46 @@ sdb::stop_reason::stop_reason(pid_t tid, int wait_status): tid(tid)
     }
 }
 
-// sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
-// {
-//     int wait_status;
-//     int options = __WALL;
-//     pid_t tid;
-
-//     if ((tid = waitpid(to_await, &wait_status, options)) < 0)
-//     {
-//         error::send_errno("waitpid failed");
-//     }
-
-//     stop_reason reason(tid, wait_status);
-//     auto final_reason = handle_signal(reason, true);
-
-//     if (!final_reason)
-//     {
-//         resume(tid);
-//         return wait_on_signal(to_await);
-//     }
-
-//     reason = *final_reason;
-//     auto& thread = threads_.at(tid);
-//     thread.reason = reason;
-//     thread.state = reason.reason;
-
-//     if ((reason.reason == process_state::exited) or (reason.reason == process_state::terminated))
-//     {
-//         report_thread_lifecycle_event(reason);
-
-//         if (tid == pid_)
-//         {
-//             state_ = reason.reason;
-//             return reason;
-
-//         } else {
-
-//             return wait_on_signal(-1);
-//         }
-//     }
-
-//     stop_running_threads();
-//     reason = cleanup_exited_threads(tid).value_or(reason);
-
-//     state_ = reason.reason;
-//     current_thread_ = tid;
-//     return reason;
-// }
-
-sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await) {
+sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
+{
     int wait_status;
     int options = __WALL;
     pid_t tid;
-    if ((tid = waitpid(to_await, &wait_status, options)) < 0) {
+
+    if ((tid = waitpid(to_await, &wait_status, options)) < 0)
+    {
         error::send_errno("waitpid failed");
     }
+
     stop_reason reason(tid, wait_status);
     auto final_reason = handle_signal(reason, true);
-    if (!final_reason) {
+
+    if (!final_reason)
+    {
         resume(tid);
         return wait_on_signal(to_await);
     }
+
     reason = *final_reason;
     auto& thread = threads_.at(tid);
     thread.reason = reason;
     thread.state = reason.reason;
-    if (reason.reason == process_state::exited or
-        reason.reason == process_state::terminated) {
+
+    if ((reason.reason == process_state::exited) or (reason.reason == process_state::terminated))
+    {
         report_thread_lifecycle_event(reason);
-        if (tid == pid_) {
+
+        if (tid == pid_)
+        {
             state_ = reason.reason;
             return reason;
-        }
-        else {
+
+        } else {
+
             return wait_on_signal(-1);
         }
     }
+
     stop_running_threads();
     reason = cleanup_exited_threads(tid).value_or(reason);
 
@@ -430,7 +394,6 @@ sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await) {
     current_thread_ = tid;
     return reason;
 }
-
 
 std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
 {
@@ -668,36 +631,99 @@ bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
     return false;
 }
 
-void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
-{
-    siginfo_t info;
+// void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
+// {
+//     siginfo_t info;
+//     auto tid = reason.tid;
+//     if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0)
+//     {
+//         error::send_errno("Failed to get signal info");
+//     }
+
+//     if (reason.info == (SIGTRAP | 0x80))
+//     {
+//         auto& sys_info = reason.syscall_info.emplace();
+//         auto& regs = get_registers();
+
+//         if (expecting_syscall_exit_)
+//         {
+//             sys_info.entry = false;
+//             sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
+//             sys_info.ret = regs.read_by_id_as<std::uint64_t>(register_id::rax);
+//             expecting_syscall_exit_ = false;
+
+//         } else {
+
+//             sys_info.entry = true;
+//             sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
+
+//             std::array<register_id, 6> arg_regs = {register_id::rdi, register_id::rsi, register_id::rdx, register_id::r10, register_id::r8, register_id::r9};
+//             for (auto i = 0; i < 6; ++i)
+//             {
+//                 sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(arg_regs[i]);
+//             }
+
+//             expecting_syscall_exit_ = true;
+//         }
+
+//         reason.info = SIGTRAP;
+//         reason.trap_reason = trap_type::syscall;
+//         return;
+//     }
+
+//     expecting_syscall_exit_ = false;
+
+//     reason.trap_reason = trap_type::unknown;
+//     if (reason.info == SIGTRAP)
+//     {
+//         switch (info.si_code)
+//         {
+//             case TRAP_TRACE:
+//                 reason.trap_reason = trap_type::single_step;
+//                 break;
+
+//             case SI_KERNEL:
+//                 reason.trap_reason = trap_type::software_break;
+//                 break;
+
+//             case TRAP_HWBKPT:
+//                 reason.trap_reason = trap_type::hardware_break;
+//                 break;
+//         }
+//     }
+// }
+
+void sdb::process::augment_stop_reason(sdb::stop_reason& reason) {
     auto tid = reason.tid;
-    if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0)
-    {
+    siginfo_t info;
+    if (ptrace(PTRACE_GETSIGINFO, tid, nullptr, &info) < 0) {
         error::send_errno("Failed to get signal info");
     }
 
-    if (reason.info == (SIGTRAP | 0x80))
-    {
-        auto& sys_info = reason.syscall_info.emplace();
-        auto& regs = get_registers();
+	if (reason.info == (SIGTRAP | 0x80)) {
+		auto& sys_info = reason.syscall_info.emplace();
+		auto& regs = get_registers();
 
-        if (expecting_syscall_exit_)
-        {
+        if (expecting_syscall_exit_) {
             sys_info.entry = false;
-            sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
-            sys_info.ret = regs.read_by_id_as<std::uint64_t>(register_id::rax);
+            sys_info.id = regs.read_by_id_as<std::uint64_t>(
+                register_id::orig_rax);
+            sys_info.ret = regs.read_by_id_as<std::uint64_t>(
+                register_id::rax);
             expecting_syscall_exit_ = false;
-
-        } else {
-
+        }
+        else {
             sys_info.entry = true;
-            sys_info.id = regs.read_by_id_as<std::uint64_t>(register_id::orig_rax);
+            sys_info.id = regs.read_by_id_as<std::uint64_t>(
+                register_id::orig_rax);
 
-            std::array<register_id, 6> arg_regs = {register_id::rdi, register_id::rsi, register_id::rdx, register_id::r10, register_id::r8, register_id::r9};
-            for (auto i = 0; i < 6; ++i)
-            {
-                sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(arg_regs[i]);
+            std::array<register_id, 6> arg_regs = {
+                register_id::rdi, register_id::rsi, register_id::rdx,
+                register_id::r10, register_id::r8, register_id::r9
+            };
+            for (auto i = 0; i < 6; ++i) {
+                sys_info.args[i] = regs.read_by_id_as<std::uint64_t>(
+                    arg_regs[i]);
             }
 
             expecting_syscall_exit_ = true;
@@ -711,21 +737,17 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
     expecting_syscall_exit_ = false;
 
     reason.trap_reason = trap_type::unknown;
-    if (reason.info == SIGTRAP)
-    {
-        switch (info.si_code)
-        {
-            case TRAP_TRACE:
-                reason.trap_reason = trap_type::single_step;
-                break;
-
-            case SI_KERNEL:
-                reason.trap_reason = trap_type::software_break;
-                break;
-
-            case TRAP_HWBKPT:
-                reason.trap_reason = trap_type::hardware_break;
-                break;
+    if (reason.info == SIGTRAP) {
+        switch (info.si_code) {
+        case TRAP_TRACE:
+            reason.trap_reason = trap_type::single_step;
+            break;
+        case SI_KERNEL:
+            reason.trap_reason = trap_type::software_break;
+            break;
+        case TRAP_HWBKPT:
+            reason.trap_reason = trap_type::hardware_break;
+            break;
         }
     }
 }
