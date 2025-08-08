@@ -195,8 +195,6 @@ namespace
 
     void print_stop_reason(const sdb::target& target, sdb::stop_reason reason)
     {
-        std::string message;
-
         switch (reason.reason)
         {
             case sdb::process_state::exited:
@@ -211,7 +209,7 @@ namespace
 
             case sdb::process_state::stopped:
 
-                fmt::print("Thread {} {}\n", reason.tid, get_signal_stop_reason(target, reason));
+                fmt::print("Thread {}\n", reason.tid/*, get_signal_stop_reason(target, reason)*/);
                 return;
         }
     }
@@ -917,11 +915,8 @@ namespace
         if (is_prefix(command, "continue"))
         {
             process->resume_all_threads();
-            fmt::print("All threads resumed\n");
             auto reason = process->wait_on_signal();
-            fmt::print("Signal received\n");
             handle_stop(*target, reason);
-            fmt::print("Signal handled\n");
 
         } else if (is_prefix(command, "help")) {
 
