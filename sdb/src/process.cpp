@@ -289,18 +289,10 @@ void sdb::process::step_over_breakpoint(pid_t tid)
     }
 }
 
-// void sdb::process::swallow_pending_sigstop(pid_t tid)
-// {
-//     if (threads_.at(tid).pending_sigstop)
-//     {
-//         ptrace(PTRACE_CONT, tid, nullptr, nullptr);
-//         waitpid(tid, nullptr, 0);
-//         threads_.at(tid).pending_sigstop = false;
-//     }
-// }
-
-void sdb::process::swallow_pending_sigstop(pid_t tid) {
-    if (threads_.at(tid).pending_sigstop) {
+void sdb::process::swallow_pending_sigstop(pid_t tid)
+{
+    if (threads_.at(tid).pending_sigstop)
+    {
         ptrace(PTRACE_CONT, tid, nullptr, nullptr);
         waitpid(tid, nullptr, 0);
         threads_.at(tid).pending_sigstop = false;
@@ -468,22 +460,43 @@ void sdb::process::report_thread_lifecycle_event(const stop_reason& reason)
     if (target_) target_->notify_thread_lifecycle_event(reason);
 }
 
-std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid)
-{
+// std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid)
+// {
+//     std::vector<pid_t> to_remove;
+//     std::optional<stop_reason> to_report;
+//     for (auto& [tid, thread]: threads_)
+//     {
+//         if ((tid != main_stop_tid) && ((thread.state == process_state::exited) or (thread.state == process_state::terminated)))
+//         {
+//             report_thread_lifecycle_event(thread.reason);
+//             to_remove.push_back(tid);
+//             if (tid == pid_) to_report = thread.reason;
+//         }
+//     }
+
+//     for (auto tid: to_remove) threads_.erase(tid);
+
+//     return to_report;
+// }
+
+std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid) {
     std::vector<pid_t> to_remove;
     std::optional<stop_reason> to_report;
-    for (auto& [tid, thread]: threads_)
-    {
-        if ((tid != main_stop_tid) && ((thread.state == process_state::exited) or (thread.state == process_state::terminated)))
-        {
+    for (auto& [tid, thread] : threads_) {
+        if (tid != main_stop_tid and
+            (thread.state == process_state::exited or
+                thread.state == process_state::terminated)) {
             report_thread_lifecycle_event(thread.reason);
             to_remove.push_back(tid);
-            if (tid == pid_) to_report = thread.reason;
+            if (tid == pid_) {
+                to_report = thread.reason;
+            }
         }
     }
 
-    for (auto tid: to_remove) threads_.erase(tid);
-
+    for (auto tid : to_remove) {
+        threads_.erase(tid);
+    }
     return to_report;
 }
 
