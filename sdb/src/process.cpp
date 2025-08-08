@@ -289,10 +289,18 @@ void sdb::process::step_over_breakpoint(pid_t tid)
     }
 }
 
-void sdb::process::swallow_pending_sigstop(pid_t tid)
-{
-    if (threads_.at(tid).pending_sigstop)
-    {
+// void sdb::process::swallow_pending_sigstop(pid_t tid)
+// {
+//     if (threads_.at(tid).pending_sigstop)
+//     {
+//         ptrace(PTRACE_CONT, tid, nullptr, nullptr);
+//         waitpid(tid, nullptr, 0);
+//         threads_.at(tid).pending_sigstop = false;
+//     }
+// }
+
+void sdb::process::swallow_pending_sigstop(pid_t tid) {
+    if (threads_.at(tid).pending_sigstop) {
         ptrace(PTRACE_CONT, tid, nullptr, nullptr);
         waitpid(tid, nullptr, 0);
         threads_.at(tid).pending_sigstop = false;
@@ -395,121 +403,64 @@ sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
     return reason;
 }
 
-// std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
-// {
-//     auto tid = reason.tid;
-
-//     if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
-
-//     if (is_attached_ and (reason.reason == process_state::stopped))
-//     {
-//         if (!threads_.count(tid))
-//         {
-//             threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
-//             report_thread_lifecycle_event(reason);
-//             if (is_main_stop) return std::nullopt;
-//         }
-
-//         if (threads_.at(tid).pending_sigstop and (reason.info == SIGSTOP))
-//         {
-//             threads_.at(tid).pending_sigstop = false;
-//             return std::nullopt;
-//         }
-
-//         read_all_registers(tid);
-//         augment_stop_reason(reason);
-
-//         if (reason.info == SIGTRAP)
-//         {
-//             auto instr_begin = get_pc(tid) - 1;
-//             if ((reason.trap_reason == trap_type::software_break) && breakpoint_sites_.contains_address(instr_begin) 
-//                 && breakpoint_sites_.get_by_address(instr_begin).is_enabled())
-//             {
-//                 set_pc(instr_begin, tid);
-
-//                 auto& bp = breakpoint_sites_.get_by_address(instr_begin);
-//                 if (bp.parent_)
-//                 {
-//                     bool should_restart = bp.parent_->notify_hit();
-//                     if (should_restart && is_main_stop) return std::nullopt;
-//                 }
-
-//             } else if (reason.trap_reason == trap_type::hardware_break) {
-
-//                 auto id = get_current_hardware_stoppoint(tid);
-//                 if (id.index() == 1)
-//                 {
-//                     watchpoints_.get_by_id(std::get<1>(id)).update_data();
-//                 }
-
-//             } else if ((reason.trap_reason == trap_type::syscall) && is_main_stop && should_resume_from_syscall(reason)) {
-
-//                 return std::nullopt;
-//             }
-//         }
-
-//         if (target_) target_->notify_stop(reason);
-//     }
-
-//     return reason;
-// }
-
-std::optional<sdb::stop_reason> sdb::process::handle_signal(
-    stop_reason reason, bool is_main_stop) {
+std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
+{
     auto tid = reason.tid;
 
-    if (reason.trap_reason and
-        *reason.trap_reason == trap_type::clone and
-        is_main_stop) {
-        return std::nullopt;
-    }
-    if (is_attached_ and reason.reason == process_state::stopped) {
-        if (!threads_.count(tid)) {
-            threads_.emplace(tid, thread_state{ tid, registers(*this, tid) });
+    if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
+
+    if (is_attached_ and (reason.reason == process_state::stopped))
+    {
+        if (!threads_.count(tid))
+        {
+            threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
             report_thread_lifecycle_event(reason);
-            if (is_main_stop) {
-                return std::nullopt;
-            }
+            if (is_main_stop) return std::nullopt;
         }
-        if (threads_.at(tid).pending_sigstop and reason.info == SIGSTOP) {
+
+        if (threads_.at(tid).pending_sigstop and (reason.info == SIGSTOP))
+        {
             threads_.at(tid).pending_sigstop = false;
             return std::nullopt;
         }
 
         read_all_registers(tid);
         augment_stop_reason(reason);
-        if (reason.info == SIGTRAP) {
+
+        if (reason.info == SIGTRAP)
+        {
             auto instr_begin = get_pc(tid) - 1;
-            if (reason.trap_reason == trap_type::software_break and
-                breakpoint_sites_.contains_address(instr_begin) and
-                breakpoint_sites_.get_by_address(instr_begin).is_enabled()) {
+            if ((reason.trap_reason == trap_type::software_break) && breakpoint_sites_.contains_address(instr_begin) 
+                && breakpoint_sites_.get_by_address(instr_begin).is_enabled())
+            {
                 set_pc(instr_begin, tid);
 
                 auto& bp = breakpoint_sites_.get_by_address(instr_begin);
-                if (bp.parent_) {
+                if (bp.parent_)
+                {
                     bool should_restart = bp.parent_->notify_hit();
-                    if (should_restart and is_main_stop) {
-                        return std::nullopt;
-                    }
+                    if (should_restart && is_main_stop) return std::nullopt;
                 }
-            }
-            else if (reason.trap_reason == trap_type::hardware_break) {
+
+            } else if (reason.trap_reason == trap_type::hardware_break) {
+
                 auto id = get_current_hardware_stoppoint(tid);
-                if (id.index() == 1) {
+                if (id.index() == 1)
+                {
                     watchpoints_.get_by_id(std::get<1>(id)).update_data();
                 }
-            }
-            else if (reason.trap_reason == trap_type::syscall and
-                is_main_stop and
-                should_resume_from_syscall(reason)) {
+
+            } else if ((reason.trap_reason == trap_type::syscall) && is_main_stop && should_resume_from_syscall(reason)) {
+
                 return std::nullopt;
             }
         }
+
         if (target_) target_->notify_stop(reason);
     }
+
     return reason;
 }
-
 
 void sdb::process::report_thread_lifecycle_event(const stop_reason& reason)
 {
