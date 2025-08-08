@@ -347,46 +347,82 @@ sdb::stop_reason::stop_reason(pid_t tid, int wait_status): tid(tid)
     }
 }
 
-sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
-{
+// sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
+// {
+//     int wait_status;
+//     int options = __WALL;
+//     pid_t tid;
+
+//     if ((tid = waitpid(to_await, &wait_status, options)) < 0)
+//     {
+//         error::send_errno("waitpid failed");
+//     }
+
+//     stop_reason reason(tid, wait_status);
+//     auto final_reason = handle_signal(reason, true);
+
+//     if (!final_reason)
+//     {
+//         resume(tid);
+//         return wait_on_signal(to_await);
+//     }
+
+//     reason = *final_reason;
+//     auto& thread = threads_.at(tid);
+//     thread.reason = reason;
+//     thread.state = reason.reason;
+
+//     if ((reason.reason == process_state::exited) or (reason.reason == process_state::terminated))
+//     {
+//         report_thread_lifecycle_event(reason);
+
+//         if (tid == pid_)
+//         {
+//             state_ = reason.reason;
+//             return reason;
+
+//         } else {
+
+//             return wait_on_signal(-1);
+//         }
+//     }
+
+//     stop_running_threads();
+//     reason = cleanup_exited_threads(tid).value_or(reason);
+
+//     state_ = reason.reason;
+//     current_thread_ = tid;
+//     return reason;
+// }
+
+sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await) {
     int wait_status;
     int options = __WALL;
     pid_t tid;
-
-    if ((tid = waitpid(to_await, &wait_status, options)) < 0)
-    {
+    if ((tid = waitpid(to_await, &wait_status, options)) < 0) {
         error::send_errno("waitpid failed");
     }
-
     stop_reason reason(tid, wait_status);
     auto final_reason = handle_signal(reason, true);
-
-    if (!final_reason)
-    {
+    if (!final_reason) {
         resume(tid);
         return wait_on_signal(to_await);
     }
-
     reason = *final_reason;
     auto& thread = threads_.at(tid);
     thread.reason = reason;
     thread.state = reason.reason;
-
-    if ((reason.reason == process_state::exited) or (reason.reason == process_state::terminated))
-    {
+    if (reason.reason == process_state::exited or
+        reason.reason == process_state::terminated) {
         report_thread_lifecycle_event(reason);
-
-        if (tid == pid_)
-        {
+        if (tid == pid_) {
             state_ = reason.reason;
             return reason;
-
-        } else {
-
+        }
+        else {
             return wait_on_signal(-1);
         }
     }
-
     stop_running_threads();
     reason = cleanup_exited_threads(tid).value_or(reason);
 
@@ -394,6 +430,7 @@ sdb::stop_reason sdb::process::wait_on_signal(pid_t to_await)
     current_thread_ = tid;
     return reason;
 }
+
 
 std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, bool is_main_stop)
 {
