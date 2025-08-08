@@ -401,7 +401,7 @@ std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, 
 
     if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
 
-    if (is_attached_ and (state_ == process_state::stopped))
+    if (is_attached_ and (reason.reason == process_state::stopped))
     {
         if (!threads_.count(tid))
         {
