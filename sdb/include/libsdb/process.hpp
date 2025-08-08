@@ -206,7 +206,7 @@ namespace sdb
 
         private:
             process(pid_t pid, bool terminate_on_end, bool is_attached)
-                : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached), registers_(new registers(*this)) 
+                : pid_(pid), terminate_on_end_(terminate_on_end), is_attached_(is_attached)
             {
                 populate_existing_threads();
             }
