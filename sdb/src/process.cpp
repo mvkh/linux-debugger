@@ -479,48 +479,21 @@ std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_
     return to_report;
 }
 
-// void sdb::process::stop_running_threads()
-// {
-//     for (auto& [tid, thread]: threads_)
-//     {
-//         if (thread.state == process_state::running)
-//         {
-//             if (!thread.pending_sigstop) tgkill(pid_, tid, SIGSTOP);
-
-//             int wait_status;
-//             waitpid(tid, &wait_status, 0);
-//             stop_reason thread_reason(tid, wait_status);
-//             if (thread_reason.reason == process_state::stopped)
-//             {
-//                 if (thread_reason.info != SIGSTOP) thread.pending_sigstop = true;
-//                 else if (thread.pending_sigstop) thread.pending_sigstop = false;
-//             }
-
-//             thread_reason = handle_signal(thread_reason, false).value_or(thread_reason);
-//             threads_.at(tid).reason = thread_reason;
-//             threads_.at(tid).state = thread_reason.reason;
-//         }
-//     }
-// }
-
-void sdb::process::stop_running_threads() {
-    for (auto& [tid, thread] : threads_) {
-        if (thread.state == process_state::running) {
-            if (!thread.pending_sigstop) {
-                tgkill(pid_, tid, SIGSTOP);
-            }
+void sdb::process::stop_running_threads()
+{
+    for (auto& [tid, thread]: threads_)
+    {
+        if (thread.state == process_state::running)
+        {
+            if (!thread.pending_sigstop) tgkill(pid_, tid, SIGSTOP);
 
             int wait_status;
             waitpid(tid, &wait_status, 0);
-
             stop_reason thread_reason(tid, wait_status);
-            if (thread_reason.reason == process_state::stopped) {
-                if (thread_reason.info != SIGSTOP) {
-                    thread.pending_sigstop = true;
-                }
-                else if (thread.pending_sigstop) {
-                    thread.pending_sigstop = false;
-                }
+            if (thread_reason.reason == process_state::stopped)
+            {
+                if (thread_reason.info != SIGSTOP) thread.pending_sigstop = true;
+                else if (thread.pending_sigstop) thread.pending_sigstop = false;
             }
 
             thread_reason = handle_signal(thread_reason, false).value_or(thread_reason);
@@ -642,16 +615,32 @@ sdb::watchpoint& sdb::process::create_watchpoint(virt_addr address, stoppoint_mo
     return watchpoints_.push(std::unique_ptr<watchpoint>(new watchpoint(*this, address, mode, size)));
 }
 
-bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
-{
-    if (syscall_catch_policy_.get_mode() == syscall_catch_policy::mode::some)
-    {
-        auto& to_catch = syscall_catch_policy_.get_to_catch();
-        auto found = std::find(begin(to_catch), end(to_catch), reason.syscall_info->id);
+// bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
+// {
+//     if (syscall_catch_policy_.get_mode() == syscall_catch_policy::mode::some)
+//     {
+//         auto& to_catch = syscall_catch_policy_.get_to_catch();
+//         auto found = std::find(begin(to_catch), end(to_catch), reason.syscall_info->id);
 
-        if (found == end(to_catch))
-        {
-            true;
+//         if (found == end(to_catch))
+//         {
+//             true;
+//         }
+//     }
+
+//     return false;
+// }
+
+bool sdb::process::should_resume_from_syscall(
+    const stop_reason& reason) {
+    if (syscall_catch_policy_.get_mode() ==
+        syscall_catch_policy::mode::some) {
+        auto& to_catch = syscall_catch_policy_.get_to_catch();
+        auto found = std::find(
+            begin(to_catch), end(to_catch), reason.syscall_info->id);
+
+        if (found == end(to_catch)) {
+            return true;
         }
     }
 
