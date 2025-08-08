@@ -179,11 +179,11 @@ namespace
             message += fmt::format(", {}:{}", file, line->line);
         }
 
-        // auto func_name = target.function_name_at_address(pc);
-        // if (func_name != "")
-        // {
-        //     message += fmt::format(" ({})", func_name);
-        // }
+        auto func_name = target.function_name_at_address(pc);
+        if (func_name != "")
+        {
+            message += fmt::format(" ({})", func_name);
+        }
 
         // if (reason.info == SIGTRAP)
         // {
