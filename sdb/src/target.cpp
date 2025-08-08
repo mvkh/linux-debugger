@@ -59,7 +59,7 @@ std::unique_ptr<sdb::target> sdb::target::attach(pid_t pid)
     return tgt;
 }
 
-sdb::file_addr sdb::target::get_pc_file_address(std::optional<pid_t> otid = std::nullopt) const
+sdb::file_addr sdb::target::get_pc_file_address(std::optional<pid_t> otid) const
 {
     return process_->get_pc(otid).to_file_addr(elves_);
 }
@@ -83,7 +83,7 @@ void sdb::target::notify_thread_lifecycle_event(const sdb::stop_reason& reason)
     }
 }
 
-sdb::stop_reason sdb::target::step_in(std::optional<pid_t> otid = std::nullopt)
+sdb::stop_reason sdb::target::step_in(std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(process_->current_thread());
     auto& stack = get_stack(tid);
@@ -129,7 +129,7 @@ sdb::stop_reason sdb::target::step_in(std::optional<pid_t> otid = std::nullopt)
     return reason;
 }
 
-sdb::line_table::iterator sdb::target::line_entry_at_pc(std::optional<pid_t> otid = std::nullopt) const
+sdb::line_table::iterator sdb::target::line_entry_at_pc(std::optional<pid_t> otid) const
 {
     auto pc = get_pc_file_address(otid);
     if (!pc.elf_file()) return line_table::iterator();
@@ -140,7 +140,7 @@ sdb::line_table::iterator sdb::target::line_entry_at_pc(std::optional<pid_t> oti
     return cu->lines().get_entry_by_address(pc);
 }
 
-sdb::stop_reason sdb::target::run_until_address(virt_addr address, std::optional<pid_t> otid = std::nullopt)
+sdb::stop_reason sdb::target::run_until_address(virt_addr address, std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(process_->current_thread());
     breakpoint_site* breakpoint_to_remove = nullptr;
@@ -159,7 +159,7 @@ sdb::stop_reason sdb::target::run_until_address(virt_addr address, std::optional
     return reason;
 }
 
-sdb::stop_reason sdb::target::step_out(std::optional<pid_t> otid = std::nullopt)
+sdb::stop_reason sdb::target::step_out(std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(process_->current_thread());
     auto& stack = get_stack(tid);
@@ -187,7 +187,7 @@ sdb::stop_reason sdb::target::step_out(std::optional<pid_t> otid = std::nullopt)
     return reason;
 }
 
-sdb::stop_reason sdb::target::step_over(std::optional<pid_t> otid = std::nullopt)
+sdb::stop_reason sdb::target::step_over(std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(process_->current_thread());
     auto& thread = threads_.at(tid);
