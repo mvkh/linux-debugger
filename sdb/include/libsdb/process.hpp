@@ -199,7 +199,7 @@ namespace sdb
 
             std::optional<stop_reason> handle_signal(stop_reason reason, bool is_main_stop);
 
-            void install_thread_lifecycle_callback_(std::function<void(const stop_reason&)> callback) 
+            void install_thread_lifecycle_callback(std::function<void(const stop_reason&)> callback) 
             { 
                 thread_lifecycle_callback_ = std::move(callback); 
             }
