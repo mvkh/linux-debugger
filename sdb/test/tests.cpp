@@ -764,6 +764,7 @@ TEST_CASE("Multithreading works", "[threads]")
     target->create_function_breakpoint("say_hi").enable();
 
     std::set<pid_t> tids;
+    stop_reason reason;
     do
     {
         proc.resume_all_threads();
