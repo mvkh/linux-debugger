@@ -741,9 +741,9 @@ void sdb::process::populate_existing_threads()
     for (auto& entry: std::filesystem::directory_iterator(path))
     {
         auto tid = std::stoi(entry.path().filename().string());
-        std::cerr << "Emplacing thread " << tid << std::endl;
+        // std::cerr << "Emplacing thread " << tid << std::endl;
         threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
-        std::cerr << "Thread id " << tid << " emplaced, total threads: " << threads_.size() << std::endl;
+        // std::cerr << "Thread id " << tid << " emplaced, total threads: " << threads_.size() << std::endl;
     }
 }
 
@@ -790,7 +790,7 @@ void sdb::process::write_fprs(const user_fpregs_struct& fprs, std::optional<pid_
 void sdb::process::write_gprs(const user_regs_struct& gprs, std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(current_thread_);
-    if (ptrace(PTRACE_SETREGS, pid_, nullptr, &gprs) < 0)
+    if (ptrace(PTRACE_SETREGS, tid_, nullptr, &gprs) < 0)
     {
         error::send_errno("Could not write general purpose registers");
     }
