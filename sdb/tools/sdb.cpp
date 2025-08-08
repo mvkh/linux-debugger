@@ -917,8 +917,11 @@ namespace
         if (is_prefix(command, "continue"))
         {
             process->resume_all_threads();
+            fmt::print("All threads resumed\n");
             auto reason = process->wait_on_signal();
+            fmt::print("Signal received\n");
             handle_stop(*target, reason);
+            fmt::print("Signal handled\n");
 
         } else if (is_prefix(command, "help")) {
 
