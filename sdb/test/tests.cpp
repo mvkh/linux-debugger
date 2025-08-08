@@ -778,7 +778,7 @@ TEST_CASE("Multithreading works", "[threads]")
     REQUIRE(tids.size() == 10);
     
     proc.resume_all_threads();
-    reason = proc.wait_on_signal()
+    reason = proc.wait_on_signal();
     REQUIRE(reason.reason == sdb::process_state::exited);
     close(dev_null);
 }
