@@ -460,61 +460,67 @@ void sdb::process::report_thread_lifecycle_event(const stop_reason& reason)
     if (target_) target_->notify_thread_lifecycle_event(reason);
 }
 
-// std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid)
-// {
-//     std::vector<pid_t> to_remove;
-//     std::optional<stop_reason> to_report;
-//     for (auto& [tid, thread]: threads_)
-//     {
-//         if ((tid != main_stop_tid) && ((thread.state == process_state::exited) or (thread.state == process_state::terminated)))
-//         {
-//             report_thread_lifecycle_event(thread.reason);
-//             to_remove.push_back(tid);
-//             if (tid == pid_) to_report = thread.reason;
-//         }
-//     }
-
-//     for (auto tid: to_remove) threads_.erase(tid);
-
-//     return to_report;
-// }
-
-std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid) {
+std::optional<sdb::stop_reason> sdb::process::cleanup_exited_threads(pid_t main_stop_tid)
+{
     std::vector<pid_t> to_remove;
     std::optional<stop_reason> to_report;
-    for (auto& [tid, thread] : threads_) {
-        if (tid != main_stop_tid and
-            (thread.state == process_state::exited or
-                thread.state == process_state::terminated)) {
+    for (auto& [tid, thread]: threads_)
+    {
+        if ((tid != main_stop_tid) && ((thread.state == process_state::exited) or (thread.state == process_state::terminated)))
+        {
             report_thread_lifecycle_event(thread.reason);
             to_remove.push_back(tid);
-            if (tid == pid_) {
-                to_report = thread.reason;
-            }
+            if (tid == pid_) to_report = thread.reason;
         }
     }
 
-    for (auto tid : to_remove) {
-        threads_.erase(tid);
-    }
+    for (auto tid: to_remove) threads_.erase(tid);
+
     return to_report;
 }
 
-void sdb::process::stop_running_threads()
-{
-    for (auto& [tid, thread]: threads_)
-    {
-        if (thread.state == process_state::running)
-        {
-            if (!thread.pending_sigstop) tgkill(pid_, tid, SIGSTOP);
+// void sdb::process::stop_running_threads()
+// {
+//     for (auto& [tid, thread]: threads_)
+//     {
+//         if (thread.state == process_state::running)
+//         {
+//             if (!thread.pending_sigstop) tgkill(pid_, tid, SIGSTOP);
+
+//             int wait_status;
+//             waitpid(tid, &wait_status, 0);
+//             stop_reason thread_reason(tid, wait_status);
+//             if (thread_reason.reason == process_state::stopped)
+//             {
+//                 if (thread_reason.info != SIGSTOP) thread.pending_sigstop = true;
+//                 else if (thread.pending_sigstop) thread.pending_sigstop = false;
+//             }
+
+//             thread_reason = handle_signal(thread_reason, false).value_or(thread_reason);
+//             threads_.at(tid).reason = thread_reason;
+//             threads_.at(tid).state = thread_reason.reason;
+//         }
+//     }
+// }
+
+void sdb::process::stop_running_threads() {
+    for (auto& [tid, thread] : threads_) {
+        if (thread.state == process_state::running) {
+            if (!thread.pending_sigstop) {
+                tgkill(pid_, tid, SIGSTOP);
+            }
 
             int wait_status;
             waitpid(tid, &wait_status, 0);
+
             stop_reason thread_reason(tid, wait_status);
-            if (thread_reason.reason == process_state::stopped)
-            {
-                if (thread_reason.info != SIGSTOP) thread.pending_sigstop = true;
-                else if (thread.pending_sigstop) thread.pending_sigstop = false;
+            if (thread_reason.reason == process_state::stopped) {
+                if (thread_reason.info != SIGSTOP) {
+                    thread.pending_sigstop = true;
+                }
+                else if (thread.pending_sigstop) {
+                    thread.pending_sigstop = false;
+                }
             }
 
             thread_reason = handle_signal(thread_reason, false).value_or(thread_reason);
