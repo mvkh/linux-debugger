@@ -12,6 +12,8 @@
 #include <elf.h>
 #include <fstream>
 
+#include <iostream>
+
 namespace
 {
     void exit_with_perror(sdb::pipe& channel, std::string const& prefix)
@@ -739,7 +741,9 @@ void sdb::process::populate_existing_threads()
     for (auto& entry: std::filesystem::directory_iterator(path))
     {
         auto tid = std::stoi(entry.path().filename().string());
+        std::cerr << "Emplacing thread " << tid << std::endl;
         threads_.emplace(tid, thread_state{tid, registers(*this, tid)});
+        std::cerr << "Thread id " << tid << " emplaced, total threads: " << threads_.size() << std::endl;
     }
 }
 
