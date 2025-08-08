@@ -172,23 +172,23 @@ namespace
         auto pc = process.get_pc(reason.tid);
         std::string message = fmt::format("stopped with signal {} at {:#x}", sigabbrev_np(reason.info), pc.addr());
 
-        auto line = target.line_entry_at_pc(reason.tid);
-        if (line != sdb::line_table::iterator())
-        {
-            auto file = line->file_entry->path.filename().string();
-            message += fmt::format(", {}:{}", file, line->line);
-        }
+        // auto line = target.line_entry_at_pc(reason.tid);
+        // if (line != sdb::line_table::iterator())
+        // {
+        //     auto file = line->file_entry->path.filename().string();
+        //     message += fmt::format(", {}:{}", file, line->line);
+        // }
 
-        auto func_name = target.function_name_at_address(pc);
-        if (func_name != "")
-        {
-            message += fmt::format(" ({})", func_name);
-        }
+        // auto func_name = target.function_name_at_address(pc);
+        // if (func_name != "")
+        // {
+        //     message += fmt::format(" ({})", func_name);
+        // }
 
-        if (reason.info == SIGTRAP)
-        {
-            message += get_sigtrap_info(process, reason);
-        }
+        // if (reason.info == SIGTRAP)
+        // {
+        //     message += get_sigtrap_info(process, reason);
+        // }
 
         return message;
     }
@@ -209,7 +209,7 @@ namespace
 
             case sdb::process_state::stopped:
 
-                fmt::print("Thread {}\n", reason.tid/*, get_signal_stop_reason(target, reason)*/);
+                fmt::print("Thread {} {}\n", reason.tid, get_signal_stop_reason(target, reason));
                 return;
         }
     }
