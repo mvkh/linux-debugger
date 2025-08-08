@@ -984,7 +984,7 @@ namespace
             
         } else if (is_prefix(command, "thread")) {
 
-            handle_thread_command(*process, args);
+            handle_thread_command(*target, args);
             
         } else {
 
