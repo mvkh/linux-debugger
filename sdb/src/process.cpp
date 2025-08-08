@@ -617,11 +617,9 @@ sdb::watchpoint& sdb::process::create_watchpoint(virt_addr address, stoppoint_mo
 
 bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
 {
+    // if (syscall_catch_policy_.get_mode() == syscall_catch_policy::mode::some)
     if (syscall_catch_policy_.get_mode() == syscall_catch_policy::mode::some)
     {
-        // auto& to_catch = syscall_catch_policy_.get_to_catch();
-        // auto found = std::find(begin(to_catch), end(to_catch), reason.syscall_info->id);
-
         auto& to_catch = syscall_catch_policy_.get_to_catch();
         auto found = std::find(begin(to_catch), end(to_catch), reason.syscall_info->id);
 
