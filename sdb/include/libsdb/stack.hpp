@@ -27,6 +27,7 @@ namespace sdb
             std::uint32_t inline_height_ = 0;
             std::vector<stack_frame> frames_;
             std::size_t current_frame_ = 0;
+            pid_t tid_ = 0;
 
             void create_inline_stack_frames(const sdb::registers& regs, const std::vector<sdb::die> inline_stack, file_addr pc);
 
@@ -34,7 +35,7 @@ namespace sdb
 
         public:
 
-            stack(target* tgt): target_(tgt) {}
+            stack(target* tgt, pid_t tid): target_(tgt), tid_(tid) {}
             void reset_inline_height();
             std::vector<sdb::die> inline_stack_at_pc() const;
             std::uint32_t inline_height() const { return inline_height_; }
@@ -57,6 +58,8 @@ namespace sdb
 
             const registers& regs() const;
             virt_addr get_pc() const;
+
+            pid_t tid() const { return tid_; }
     };
 }
 
