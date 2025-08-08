@@ -643,7 +643,7 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
     if (reason.info == (SIGTRAP | 0x80))
     {
         auto& sys_info = reason.syscall_info.emplace();
-        auto& regs = get_registers();
+        auto& regs = get_registers(tid);
 
         if (expecting_syscall_exit_)
         {
@@ -665,10 +665,15 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
 
             expecting_syscall_exit_ = true;
         }
+
+        std::cerr << "Caught a syscall trap with syscall id " << reason.syscall_info.id << endl;
+
         reason.info = SIGTRAP;
         reason.trap_reason = trap_type::syscall;
         return;
     }
+
+    std::cerr << "Not a syscall trap" << endl;
 
     expecting_syscall_exit_ = false;
 
