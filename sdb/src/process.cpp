@@ -643,7 +643,7 @@ void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
     if (reason.info == (SIGTRAP | 0x80))
     {
         auto& sys_info = reason.syscall_info.emplace();
-        auto& regs = get_registers(tid);
+        auto& regs = get_registers();
 
         if (expecting_syscall_exit_)
         {
