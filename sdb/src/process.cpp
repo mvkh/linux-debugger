@@ -790,7 +790,7 @@ void sdb::process::write_fprs(const user_fpregs_struct& fprs, std::optional<pid_
 void sdb::process::write_gprs(const user_regs_struct& gprs, std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(current_thread_);
-    if (ptrace(PTRACE_SETREGS, tid_, nullptr, &gprs) < 0)
+    if (ptrace(PTRACE_SETREGS, tid, nullptr, &gprs) < 0)
     {
         error::send_errno("Could not write general purpose registers");
     }
