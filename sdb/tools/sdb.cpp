@@ -185,10 +185,10 @@ namespace
             message += fmt::format(" ({})", func_name);
         }
 
-        // if (reason.info == SIGTRAP)
-        // {
-        //     message += get_sigtrap_info(process, reason);
-        // }
+        if (reason.info == SIGTRAP)
+        {
+            message += get_sigtrap_info(process, reason);
+        }
 
         return message;
     }
