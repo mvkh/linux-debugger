@@ -111,6 +111,7 @@ int sdb::process::set_hardware_stoppoint(virt_addr address, stoppoint_mode mode,
     {
         if (tid == current_thread_) continue;
         auto& other_regs = get_registers(tid);
+        other_regs.write_by_id(static_cast<register_id>(id), address.addr());
         other_regs.write_by_id(register_id::dr7, masked);
     }
 
