@@ -172,12 +172,12 @@ namespace
         auto pc = process.get_pc(reason.tid);
         std::string message = fmt::format("stopped with signal {} at {:#x}", sigabbrev_np(reason.info), pc.addr());
 
-        // auto line = target.line_entry_at_pc(reason.tid);
-        // if (line != sdb::line_table::iterator())
-        // {
-        //     auto file = line->file_entry->path.filename().string();
-        //     message += fmt::format(", {}:{}", file, line->line);
-        // }
+        auto line = target.line_entry_at_pc(reason.tid);
+        if (line != sdb::line_table::iterator())
+        {
+            auto file = line->file_entry->path.filename().string();
+            message += fmt::format(", {}:{}", file, line->line);
+        }
 
         // auto func_name = target.function_name_at_address(pc);
         // if (func_name != "")
