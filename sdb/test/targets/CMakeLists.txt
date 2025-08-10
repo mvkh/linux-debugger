@@ -34,3 +34,4 @@ add_test_cpp_target(multi_threaded)
 target_link_libraries(multi_threaded pthread)
 
 add_test_cpp_target(global_variable)
+add_test_cpp_target(member_pointer)
