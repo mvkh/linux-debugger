@@ -711,7 +711,7 @@ namespace
         if (auto reg_rule = std::get_if<cfa_register_rule>(&ctx.cfa_rule))
         {
             auto reg_info = sdb::register_info_by_dwarf(reg_rule->reg);
-            cfa = std::get<std::uint64_t>(old_regs.read(reg_info)) + reg_rule.offset;
+            cfa = std::get<std::uint64_t>(old_regs.read(reg_info)) + reg_rule->offset;
 
         } else if (auto expr = std::get_if<cfa_expr_rule>(&ctx.cfa_rule)) {
 
