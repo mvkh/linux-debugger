@@ -1778,6 +1778,14 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
 
             case DW_OP_piece:
             {
+                auto byte_size = cur.uleb128();
+                simple_location loc = get_current_location();
+                pieces.push_back(pieces_result::piece{loc, byte_size * 8});
+                break;
+            }
+
+            case DW_OP_bit_piece:
+            {
                 auto bit_size = cur.uleb128();
                 auto offset = cur.uleb128();
                 simple_location loc = get_current_location();
