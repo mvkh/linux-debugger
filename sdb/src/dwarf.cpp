@@ -1201,7 +1201,7 @@ void sdb::dwarf::index_die(const die& current, bool in_function) const
         if (auto name = current.name())
         {
             index_entry entry{current.cu(), current.position()};
-            global_variable_index_.emplace(*name, entry));
+            global_variable_index_.emplace(*name, entry);
         }
     }
 
