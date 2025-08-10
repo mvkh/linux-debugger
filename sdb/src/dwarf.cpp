@@ -1577,7 +1577,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
 
         } else if ((opcode >= DW_OP_reg0) && (opcode <= DW_OP_reg31)) {
 
-            auto reg = opcode - DW_OP_breg0;
+            auto reg = opcode - DW_OP_reg0;
 
             if (in_frame_info_) 
             {
