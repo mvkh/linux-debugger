@@ -1573,7 +1573,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
             auto reg = opcode - DW_OP_breg0;
             auto reg_value = regs.read(sdb::register_info_by_dwarf(reg));
             auto offset = cur.sleb128();
-            stack.push_back(std::get<std::uint64_t>(reg_val) + offset);
+            stack.push_back(std::get<std::uint64_t>(reg_value) + offset);
 
         } else if ((opcode >= DW_OP_reg0) && (opcode <= DW_OP_reg31)) {
 
@@ -1622,7 +1622,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
             case DW_OP_bregx:
             {
                 auto reg_value = regs.read(sdb::register_info_by_dwarf(cur.uleb128()));
-                stack.push_back(std::get<std::uint64_t>(reg_val) + cur.sleb128());
+                stack.push_back(std::get<std::uint64_t>(reg_value) + cur.sleb128());
                 break;
             }
 
@@ -1632,7 +1632,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
                 auto fb_loc = func.value()[DW_AT_frame_base].as_evaluated_location(proc, regs, true);
                 auto fb_addr = read_frame_base_result(fb_loc, regs);
                 stack.push_back(fb_addr.addr() + offset);
-                break
+                break;
             }
 
             case DW_OP_dup: stack.push_back(stack.back()); break;
@@ -1849,7 +1849,7 @@ sdb::location_list sdb::attr::as_location_list(bool in_frame_info) const
     return location_list{*cu_->dwarf_info(), *cu_, data, in_frame_info};
 }
 
-sdb::dwarf_expression::result sdb::attr::as_evaluated_location(const sdb::process& proc, const registers& regs, bool In_frame_info) const
+sdb::dwarf_expression::result sdb::attr::as_evaluated_location(const sdb::process& proc, const registers& regs, bool in_frame_info) const
 {
     if (form_ == DW_FORM_exprloc)
     {
