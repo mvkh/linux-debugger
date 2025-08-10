@@ -826,9 +826,9 @@ TEST_CASE("DWARF expressions work", "[dwarf]")
 
     auto& pieces = std::get<sdb::dwarf_expression::pieces_result>(res).pieces;
     REQUIRE(pieces.size() == 3);
-    REQUIRE(pieces[0].bit_size = 4*8);
-    REQUIRE(pieces[1].bit_size = 8*8);
-    REQUIRE(pieces[2].bit_size = 5);
+    REQUIRE(pieces[0].bit_size == 4*8);
+    REQUIRE(pieces[1].bit_size == 8*8);
+    REQUIRE(pieces[2].bit_size == 5);
     REQUIRE(std::get<dwarf_expression::register_result>(pieces[0].location).reg_num == 16);
     REQUIRE(std::get_if<dwarf_expression::empty_result>(&pieces[1].location) != nullptr);
     REQUIRE(std::get<dwarf_expression::address_result>(pieces[2].location).address.addr() == 0xffffffff);
