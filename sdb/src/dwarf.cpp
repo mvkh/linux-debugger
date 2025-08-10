@@ -1533,7 +1533,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
         stack.push_back(op(lhs, rhs) ? 1 : 0);
     };
 
-    auto virt_pc = virt_addr{regs.read_by_id<std::uint64_t>(register_id::rip)};
+    auto virt_pc = virt_addr{regs.read_by_id_as<std::uint64_t>(register_id::rip)};
     auto pc = virt_pc.to_file_addr(*parent_->elf_file());
     auto func = parent_->function_containing_address(pc);
 
