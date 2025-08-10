@@ -611,7 +611,7 @@ namespace
                 case DW_CFA_def_cfa_expression: 
                 {
                     auto length = cur.uleb128();
-                    auto expr = sdb::dwarf_expression{elf, {cur.position(), cur.position + length}, true};
+                    auto expr = sdb::dwarf_expression{elf, {cur.position(), cur.position() + length}, true};
                     ctx.cfa_rule = cfa_expr_rule{expr};
                     break;
                 }
