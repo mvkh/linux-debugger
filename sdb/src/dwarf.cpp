@@ -1547,7 +1547,7 @@ sdb::dwarf_expression::result sdb::dwarf_expression::eval(const sdb::process& pr
 
         } else if (result_is_address) {
 
-            loc = address_result{stack.back()};
+            loc = address_result{ virt_addr{stack.back()} };
             stack.pop_back();
 
         } else {
