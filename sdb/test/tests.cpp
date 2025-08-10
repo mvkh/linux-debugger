@@ -790,7 +790,7 @@ TEST_CASE("Can read global integer variable", "[variable]")
     auto& proc = target->get_process();
 
     target->create_function_breakpoint("main").enable();
-    proc.resum();
+    proc.resume();
     proc.wait_on_signal();
 
     auto var_die = target->get_main_elf().get_dwarf().find_global_variable("g_int");
