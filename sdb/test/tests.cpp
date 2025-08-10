@@ -820,7 +820,7 @@ TEST_CASE("DWARF expressions work", "[dwarf]")
 
     auto target = target::launch("targets/step");
     auto& proc = target->get_process();
-    sdb::span<const std::byte> data{reinterpret_cast<std::byte*>(piece_data.data(), piece_data.size())};
+    sdb::span<const std::byte> data{reinterpret_cast<std::byte*>(piece_data.data()), piece_data.size()};
     auto expr = sdb::dwarf_expression(target->get_main_elf().get_dwarf(), data, false);
     auto res = expr.eval(proc, proc.get_registers());
 
