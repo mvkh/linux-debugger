@@ -631,22 +631,6 @@ bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
     return false;
 }
 
-// bool sdb::process::should_resume_from_syscall(
-//     const stop_reason& reason) {
-//     if (syscall_catch_policy_.get_mode() ==
-//         syscall_catch_policy::mode::some) {
-//         auto& to_catch = syscall_catch_policy_.get_to_catch();
-//         auto found = std::find(
-//             begin(to_catch), end(to_catch), reason.syscall_info->id);
-
-//         if (found == end(to_catch)) {
-//             return true;
-//         }
-//     }
-
-//     return false;
-// }
-
 void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
 {
     siginfo_t info;

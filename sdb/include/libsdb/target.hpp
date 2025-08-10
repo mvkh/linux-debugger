@@ -108,6 +108,9 @@ namespace sdb
             const std::unordered_map<pid_t, thread>& threads() const { return threads_; }
 
             void notify_thread_lifecycle_event(const sdb::stop_reason& reason);
+
+            std::vector<std::byte> read_location_data(const dwarf_expression::result& loc, std::size_t size, 
+                std::optional<pid_t> otid = std::nullopt) const;
     };
 }
 

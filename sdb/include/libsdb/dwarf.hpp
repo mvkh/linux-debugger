@@ -83,6 +83,67 @@ namespace sdb
             iterator operator++(int);
     };
 
+    class dwarf_expression
+    {
+        private:
+
+            const dwarf* parent_;
+            span<const std::byte> expr_data_;
+            bool in_frame_info_;
+
+        public:
+
+            struct address_result { virt_addr address; };
+
+            struct register_result { std::uint64_t reg_num; };
+
+            struct data_result { span<const std::byte> data; };
+
+            struct literal_result { std::uint64_t value; };
+
+            struct empty_result {};
+
+            using simple_location = std::variant<address_result, register_result, data_result, literal_result, empty_result>;
+
+            struct pieces_result
+            {
+                struct piece 
+                {
+                    simple_location location;
+                    std::uint64_t bit_size;
+                    std::uint64_t offset = 0;
+                };
+
+                std::vector<piece> pieces;
+            };
+
+            using result = std::variant<simple_location, pieces_result>;
+
+            dwarf_expression(const dwarf& parent, span<const std::byte> expr_data, bool in_frame_info):
+                parent_(&parent), expr_data_(expr_data), in_frame_info_(in_frame_info)
+            {}
+
+            result eval(const sdb::process& proc, const registers& regs, bool push_cfa = false) const;
+    };
+
+    class location_list 
+    {
+        private:
+
+            const dwarf* parent_;
+            const compile_unit* cu_;
+            span<const std::byte> expr_data_;
+            bool in_frame_info_;
+
+        public:
+
+            location_list(const dwarf& parent, const compile_unit& cu, span<const std::byte> expr_data, bool in_frame_info):
+                parent_(&parent), cu_(&cu), expr_data_(expr_data), in_frame_info_(in_frame_info) 
+            {}
+
+            dwarf_expression::result eval(const sdb::process& proc, const registers& regs) const;
+    };
+
     class attr
     {
         private:
@@ -107,6 +168,11 @@ namespace sdb
             std::string_view as_string() const;
             die as_reference() const;
             range_list as_range_list() const;
+
+            dwarf_expression as_expression(bool in_frame_info) const;
+            location_list as_location_list(bool in_frame_info) const;
+
+            dwarf_expression::result as_evaluated_location(const sdb::process& proc, const registers& regs, bool In_frame_info) const;
     };
 
     struct attr_spec
@@ -315,9 +381,10 @@ namespace sdb
             };
 
             mutable std::unordered_multimap<std::string, index_entry> function_index_;
+            mutable std::unordered_multimap<std::string, index_entry> global_variable_index_;
 
             void index() const;
-            void index_die(const die& current) const;
+            void index_die(const die& current, bool in_function = false) const;
 
         public:
 
@@ -331,6 +398,8 @@ namespace sdb
             std::optional<die> function_containing_address(file_addr address) const;
 
             std::vector<die> find_functions(std::string name) const;
+
+            std::optional<die> find_global_variable(std::string name) const;
 
             line_table::iterator line_entry_at_address(file_addr address) const
             {
