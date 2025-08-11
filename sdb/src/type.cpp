@@ -90,11 +90,11 @@ namespace
 
             case DW_ATE_float:
 
-                if (die.name == "float") return fmt::format("{}", sdb::from_bytes<float>(ptr));
+                if (die.name() == "float") return fmt::format("{}", sdb::from_bytes<float>(ptr));
 
-                if (die.name == "double") return fmt::format("{}", sdb::from_bytes<double>(ptr));
+                if (die.name() == "double") return fmt::format("{}", sdb::from_bytes<double>(ptr));
 
-                if (die.name == "long double") return fmt::format("{}", sdb::from_bytes<long double>(ptr));
+                if (die.name() == "long double") return fmt::format("{}", sdb::from_bytes<long double>(ptr));
 
                 sdb::error::send("Unsupported floating point type");
 
