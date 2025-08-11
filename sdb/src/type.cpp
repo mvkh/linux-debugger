@@ -221,7 +221,7 @@ sdb::typed_data sdb::typed_data::fixup_bitfield(const sdb::process& proc, const 
         fixed_data.resize(storage_byte_size);
 
         auto dest = reinterpret_cast<std::uint8_t*>(fixed_data.data());
-        auto src = reinterpret_cast<std::uint8_t*>(data_.data());
+        auto src = reinterpret_cast<const std::uint8_t*>(data_.data());
         memcpy_bits(dest, 0, src, bit_offset, bit_size);
 
         return {fixed_type, type_};
