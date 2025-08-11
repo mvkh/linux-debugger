@@ -55,7 +55,7 @@ namespace
         std::string ret = "[";
         auto size = dimensions.back();
         dimensions.pop_back();
-        aut sub_size = std::accumulate(dimensions.begin(), dimensions.end(), value_type.byte_size(), std::multiplies<>());
+        auto sub_size = std::accumulate(dimensions.begin(), dimensions.end(), value_type.byte_size(), std::multiplies<>());
         for (std::size_t i = 0; i < size; ++i)
         {
             sdb::span<const std::byte> subdata{data.begin() + i * sub_size, data.end()};
