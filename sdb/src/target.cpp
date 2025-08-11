@@ -491,35 +491,28 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
             data = data.read_member(get_process(), member_name);
             name = name.substr(member_name_start);
 
-        // } else if (name[op_pos] == '[') {
+        } else if (name[op_pos] == '[') {
 
-        //     auto int_end = name.find(']', op_pos);
-        //     auto index_str = name.substr(op_pos + 1, int_end - op_pos - 1);
-        //     auto index = to_integral<std::size_t>(index_str);
-        //     if (!index) sdb::error::send("Invalid index");
-        //     data.index(get_process(), *index);
-        //     name = name.substr(int_end + 1);
-        // }
-
-        // if (name[op_pos] == '.' or name[op_pos] == '>') {
-        //     auto member_name_start = op_pos + 1;
-        //     op_pos = name.find_first_of(".-[", member_name_start);
-        //     auto member_name = name.substr(
-        //         member_name_start, op_pos - member_name_start);
-        //     data = data.read_member(get_process(), member_name);
-        //     name = name.substr(member_name_start);
-        }
-         else if (name[op_pos] == '[') {
             auto int_end = name.find(']', op_pos);
             auto index_str = name.substr(op_pos + 1, int_end - op_pos - 1);
-            char* end;
             auto index = to_integral<std::size_t>(index_str);
-            if (!index) {
-                sdb::error::send("Invalid index");
-            }
+            if (!index) sdb::error::send("Invalid index");
             data = data.index(get_process(), *index);
             name = name.substr(int_end + 1);
         }
+
+        // }
+        //  else if (name[op_pos] == '[') {
+        //     auto int_end = name.find(']', op_pos);
+        //     auto index_str = name.substr(op_pos + 1, int_end - op_pos - 1);
+        //     char* end;
+        //     auto index = to_integral<std::size_t>(index_str);
+        //     if (!index) {
+        //         sdb::error::send("Invalid index");
+        //     }
+        //     data = data.index(get_process(), *index);
+        //     name = name.substr(int_end + 1);
+        // }
 
         op_pos = name.find_first_of(".-[");
     }
