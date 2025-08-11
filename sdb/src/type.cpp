@@ -190,7 +190,7 @@ std::string sdb::typed_data::visualize(const sdb::process& proc, int depth) cons
     {
         case DW_TAG_base_type: return visualize_base_type(*this);
 
-        case DW_TAG_pointer_type: return visualize_pointer_type(*this);
+        case DW_TAG_pointer_type: return visualize_pointer_type(proc, *this);
 
         case DW_TAG_ptr_to_member_type: return visualize_member_pointer_type(*this);
 
