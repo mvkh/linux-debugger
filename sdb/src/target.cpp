@@ -492,7 +492,7 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
             data = data.read_member(get_process(), member_name);
             name = name.substr(member_name_start);
 
-        } else if (name[op_pos] == '[]') {
+        } else if (name[op_pos] == '[') {
 
             auto int_end = name.find_first(']', op_pos);
             auto index_str = name.substr(op_pos + 1, int_end - 1);
