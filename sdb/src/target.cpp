@@ -483,13 +483,13 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
             op_pos++;
         }
 
-        // if ((name[op_pos] == '.') || (name[op_pos] == '>'))
-        // {
-        //     auto member_name_start = op_pos + 1;
-        //     op_pos = name.find_first_of(".-[", member_name_start);
-        //     auto member_name = name.substr(member_name_start, op_pos - member_name_start);
-        //     data = data.read_member(get_process(), member_name);
-        //     name = name.substr(member_name_start);
+        if ((name[op_pos] == '.') || (name[op_pos] == '>'))
+        {
+            auto member_name_start = op_pos + 1;
+            op_pos = name.find_first_of(".-[", member_name_start);
+            auto member_name = name.substr(member_name_start, op_pos - member_name_start);
+            data = data.read_member(get_process(), member_name);
+            name = name.substr(member_name_start);
 
         // } else if (name[op_pos] == '[') {
 
@@ -501,20 +501,13 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
         //     name = name.substr(int_end + 1);
         // }
 
-        // if (name[op_pos] == '-') {
-        //     if (name[op_pos + 1] != '>') {
-        //         sdb::error::send("Invalid operator");
-        //     }
-        //     data = data.deref_pointer(get_process());
-        //     op_pos++;
-        // }
-        if (name[op_pos] == '.' or name[op_pos] == '>') {
-            auto member_name_start = op_pos + 1;
-            op_pos = name.find_first_of(".-[", member_name_start);
-            auto member_name = name.substr(
-                member_name_start, op_pos - member_name_start);
-            data = data.read_member(get_process(), member_name);
-            name = name.substr(member_name_start);
+        // if (name[op_pos] == '.' or name[op_pos] == '>') {
+        //     auto member_name_start = op_pos + 1;
+        //     op_pos = name.find_first_of(".-[", member_name_start);
+        //     auto member_name = name.substr(
+        //         member_name_start, op_pos - member_name_start);
+        //     data = data.read_member(get_process(), member_name);
+        //     name = name.substr(member_name_start);
         }
          else if (name[op_pos] == '[') {
             auto int_end = name.find(']', op_pos);
