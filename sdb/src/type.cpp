@@ -82,7 +82,7 @@ namespace
     {
         auto &type = data.value_type();
         auto die = type.get_die();
-        auto ptr = data.data_ptr()
+        auto ptr = data.data_ptr();
 
         switch (die[DW_AT_encoding].as_int())
         {
