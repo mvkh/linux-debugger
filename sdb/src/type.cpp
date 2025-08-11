@@ -32,7 +32,7 @@ namespace
                 auto pos = data.data_ptr() + byte_offset;
                 auto subtype = child[DW_AT_type].as_type();
                 std::vector<std::byte> member_data{pos, pos + subtype.byte_size()};
-                auto data = sdb::typed_data{member_data, subtype}.fixup_bitfied(proc, child);
+                auto data = sdb::typed_data{member_data, subtype}.fixup_bitfield(proc, child);
                 auto member_str = data.visualize(proc, depth + 1);
                 auto name = child.name().value_or("<unnamed>");
                 ret += fmt::format("{}{}: {}\n", indent, name, member_str);
@@ -41,17 +41,6 @@ namespace
         auto indent = std::string(depth, '\t');
         ret += indent + "}";
         return ret;
-    }
-
-    std::string visualize_array_type(const sdb::process& proc, const sdb::typed_data& data)
-    {
-        std::vector<std::size_t> dimensions;
-        for (auto& child: data.value_type().get_die().children())
-            if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
-                dimensions.push_back(child[DW_AT_upper_bound].as_int() + 1);
-        std::reverse(dimensions.begin(), dimensions.end());
-        auto value_type = data.value_type().get_die()[DW_AT_type].as_type();
-        return visualize_subrange(proc, value_type, data.data(), dimensions);
     }
 
     std::string visualize_subrange(const sdb::process& proc, const sdb::type& value_type, 
@@ -76,6 +65,17 @@ namespace
         }
 
         return ret + "]";
+    }
+
+    std::string visualize_array_type(const sdb::process& proc, const sdb::typed_data& data)
+    {
+        std::vector<std::size_t> dimensions;
+        for (auto& child: data.value_type().get_die().children())
+            if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
+                dimensions.push_back(child[DW_AT_upper_bound].as_int() + 1);
+        std::reverse(dimensions.begin(), dimensions.end());
+        auto value_type = data.value_type().get_die()[DW_AT_type].as_type();
+        return visualize_subrange(proc, value_type, data.data(), dimensions);
     }
 
     std::string visualize_base_type(const sdb::process& proc, const sdb::typed_data& data)
