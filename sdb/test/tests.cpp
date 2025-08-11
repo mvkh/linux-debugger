@@ -886,7 +886,7 @@ TEST_CASE("Local variables", "[variable]")
 
 TEST_CASE("Member pointers", "[variable]")
 {
-    auto target = target::launch("targets/member_pointer", dev_null);
+    auto target = target::launch("targets/member_pointer");
     auto& proc = target->get_process();
     target->create_line_breakpoint("member_pointer.cpp", 14).enable();
     proc.resume();
