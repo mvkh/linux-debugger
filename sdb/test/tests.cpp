@@ -898,5 +898,5 @@ TEST_CASE("Member pointers", "[variable]")
 
     auto func_ptr = target->resolve_indirect_name("func_ptr", target->get_pc_file_address());
     auto func_vis = func_ptr.visualize(proc);
-    REQUIRE(func_vis != "0x0")
+    REQUIRE(func_vis != "0x0");
 }
