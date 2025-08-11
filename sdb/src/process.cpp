@@ -631,6 +631,20 @@ bool sdb::process::should_resume_from_syscall(const stop_reason& reason)
     return false;
 }
 
+std::string sdb::process::read_string(virt_addr address) const
+{
+    std::string ret;
+    while (true)
+    {
+        auto data = read_memory(address, 1024);
+        for (auto c: data)
+        {
+            if (c == std::byte{0}) return ret;
+            ret.push_back(static_cast<char>(c));
+        }
+    }
+}
+
 void sdb::process::augment_stop_reason(sdb::stop_reason& reason)
 {
     siginfo_t info;

@@ -174,6 +174,8 @@ namespace sdb
                 return from_bytes<T>(data.data());
             }
 
+            std::string read_string(virt_addr address) const;
+
             std::variant<breakpoint_site::id_type, watchpoint::id_type> get_current_hardware_stoppoint(std::optional<pid_t> otid = std::nullopt) const;
 
             void set_syscall_catch_policy(syscall_catch_policy info)

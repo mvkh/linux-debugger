@@ -17,6 +17,7 @@ namespace sdb
     class die;
     class compile_unit;
     class process;
+    class type;
 
     class range_list 
     {
@@ -173,6 +174,8 @@ namespace sdb
             location_list as_location_list(bool in_frame_info) const;
 
             dwarf_expression::result as_evaluated_location(const sdb::process& proc, const registers& regs, bool In_frame_info) const;
+
+            type as_type() const;
     };
 
     struct attr_spec
@@ -411,6 +414,9 @@ namespace sdb
             std::vector<die> inline_stack_at_address(file_addr address) const;
 
             const call_frame_information& cfi() const { return *cfi_; }
+
+            std::optional<die> find_local_variable(std::string name, file_addr pc) const;
+            std::vector<die> scopes_at_address(file_addr address) const;
     };
 
     struct source_location
@@ -457,6 +463,15 @@ namespace sdb
             source_location location() const;
             const line_table::file& file() const;
             std::uint64_t line() const;
+
+            struct bitfield_information 
+            {
+                std::uint64_t bit_size;
+                std::uint64_t storage_byte_size;
+                std::uint8_t but_offset;
+            };
+
+            std::optional<bitfield_information> get_bitfield_information(std::uint64_t class_byte_size) const;
     };
 
     class die::children_range

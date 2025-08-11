@@ -4,6 +4,7 @@
 #include <libsdb/error.hpp>
 #include <libsdb/elf.hpp>
 #include <libsdb/process.hpp>
+#include <libsdb/type.hpp>
 #include <string_view>
 #include <algorithm>
 #include <variant>
@@ -772,6 +773,16 @@ namespace
         if (!simple_loc) sdb::error::send("Unsupported frame base location");
         if (auto addr_res = std::get_if<sdb::dwarf_expression::address_result>(simple_loc)) return addr_res->address;
         sdb::error::send("Unsupported frame base location");
+    }
+
+    void scopes_at_address_in_die(const sdb::die& die, sdb::file_addr address, std::vector<sdb::die>& scopes)
+    {
+        for (auto& c: die.children())
+            if (c.contains_address(address))
+            {
+                scopes_at_address_in_die(c, address, scopes);
+                scopes.push_back(c);
+            }
     }
 }
 
@@ -1873,4 +1884,54 @@ sdb::dwarf_expression::result sdb::attr::as_evaluated_location(const sdb::proces
 
         error::send("Invalid location type");
     }
+}
+
+sdb::type sdb::attr::as_type() const
+{
+    return sdb::type{as_reference()};
+}
+
+std::optional<sdb::die::bitfield_information> sdb::die::get_bitfield_information(std::uint64_t class_byte_size) const
+{
+    if ((!contains(DW_AT_bit_offset)) && (!contains(DW_AT_data_bit_offset))) return std::nullopt;
+
+    auto bit_size = (*this)[DW_AT_bit_size].as_int();
+    auto storage_byte_size = contains(DW_AT_byte_size) ? (*this)[DW_AT_byte_size].as_int() : class_byte_size;
+    auto storage_bit_size = storage_byte_size * 8;
+    std::uint8_t bit_offset = 0;
+    if (contains(DW_AT_bit_offset))
+    {
+        auto offset_field = (*this)[DW_AT_bit_offset].as_int();
+        bit_offset = storage_bit_size - offset_field - bit_size;
+    }
+    if (contains(DW_AT_data_bit_offset))
+    {
+        bit_offset = (*this)[DW_AT_data_bit_offset].as_int() % 8;
+    }
+
+    return bitfield_information{bit_size, storage_byte_size, bit_offset};
+}
+
+std::vector<sdb::die> sdb::dwarf::scopes_at_address(file_addr address) const
+{
+    auto func = function_containing_address(address);
+    if (!func) return {};
+
+    std::vector<sdb::die> scopes;
+    scopes_at_address_in_die(*func, address, scopes);
+    scopes.push_back(*func);
+    return scopes;
+}
+
+std::optional<sdb::die> sdb::dwarf::find_local_variable(std::string name, file_addr pc) const
+{
+    auto scopes = scopes_at_address(pc);
+    for (auto& scope: scopes)
+        for (auto& child: scope.children())
+        {
+            auto tag = child.abbrev_entry()->tag;
+            if (((tag == DW_TAG_variable) || (tag == DW_TAG_formal_parameter)) && (child.name == name)) return child;
+        }
+
+    return std::nullopt;
 }

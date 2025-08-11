@@ -2,6 +2,8 @@
 #include <libsdb/types.hpp>
 #include <libsdb/disassembler.hpp>
 #include <libsdb/bit.hpp>
+#include <libsdb/type.hpp>
+#include <libsdb/parse.hpp>
 #include <csignal>
 #include <optional>
 #include <fstream>
@@ -28,6 +30,22 @@ namespace
         auto vdso_bytes = proc.read_memory(address, vdso_size);
         vdso_dump.write(reinterpret_cast<const char*>(vdso_bytes.data()), vdso_bytes.size());
         return vdso_dump_path;
+    }
+
+    sdb::typed_data get_initial_variable_data(const sdb::target& target, std::string name, sdb::file_addr pc)
+    {
+        auto var = target.find_variable(name, pc);
+        if (!var) sdb::error::send("Variable not found");
+        auto var_type = var.value()[DW_AT_type].as_type();
+        auto loc = var.value()[DW_AT_location].as_evaluated_location(target.get_process(), target.get_stack().current_frame().regs, false);
+        auto data_vec = target.read_location_data(loc, var_type.byte_size());
+
+        std::optional<sdb::virt_addr> address;
+        if (auto single_loc = std::get_if<sdb::dwarf_expression::simple_location>(&loc))
+            if (auto addr_res = std::get_if<sdb::dwarf_expression::address_result>(single_loc))
+                address = addr_res->address;
+
+        return {std::move(data_vec), var_type, address};
     }
 }
 
@@ -447,4 +465,62 @@ std::vector<std::byte> sdb::target::read_location_data(const dwarf_expression::r
     }
 
     sdb::error::send("Invalid location type");
+}
+
+sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr pc) const
+{
+    auto op_pos = name.find_first_of(".-[");
+    auto var_name = name.substr(0, op_pos);
+    auto& dwarf = pc.elf_file()->get_dwarf();
+
+    auto data = get_initial_variable_data(*this, var_name, pc);
+
+    while(op_pos != std::string::npos)
+    {
+        if (name[op_pos] == '-')
+        {
+            if (name[op_pos + 1] != '>') sdb::error::send("Invalid operator");
+            data = data.deref_pointer(get_process());
+            op_pos++;
+        }
+
+        if ((name[op_pos] == '.') || (name[op_pos] == '>'))
+        {
+            auto member_name_start = op_pos + 1;
+            op_pos = name.find_first_of(".-[", member_name_start);
+            auto member_name = name.substr(member_name_start, op_pos - member_name_start);
+            data = data.read_member(get_process(), member_name);
+            name = name.substr(member_name_start);
+
+        } else if (name[op_pos] == '[]') {
+
+            auto int_end = name.find_first(']', op_pos);
+            auto index_str = name.substr(op_pos + 1, int_end - 1);
+            auto index = to_integral<std::size_t>(index_str);
+            if (!index) sdb::error::send("Invalid index");
+            data.index(get_process(), *index);
+            name = name.substr(int_end + 1);
+        }
+
+        op_pos = name.find_first_of(".-[")
+    }
+
+    return data;
+}
+
+std::optional<sdb::die> sdb::target::find_variable(std::string name, file_addr pc) const
+{
+    auto& dwarf = pc.elf_file()->get_dwarf();
+    auto local = dwarf.find_local_variable(name, pc);
+    if (local) return local;
+
+    std::optional<die> global = std::nullopt;
+    elves_.for_each([&](auto& elf)
+    {
+        auto &dwarf = elf.get_dwarf();
+        auto found = dwarf.find_global_variable(name);
+        if (found) global = *found;
+    });
+
+    return global;
 }
