@@ -476,12 +476,12 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
 
     while(op_pos != std::string::npos)
     {
-        // if (name[op_pos] == '-')
-        // {
-        //     if (name[op_pos + 1] != '>') sdb::error::send("Invalid operator");
-        //     data = data.deref_pointer(get_process());
-        //     op_pos++;
-        // }
+        if (name[op_pos] == '-')
+        {
+            if (name[op_pos + 1] != '>') sdb::error::send("Invalid operator");
+            data = data.deref_pointer(get_process());
+            op_pos++;
+        }
 
         // if ((name[op_pos] == '.') || (name[op_pos] == '>'))
         // {
@@ -501,13 +501,13 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
         //     name = name.substr(int_end + 1);
         // }
 
-        if (name[op_pos] == '-') {
-            if (name[op_pos + 1] != '>') {
-                sdb::error::send("Invalid operator");
-            }
-            data = data.deref_pointer(get_process());
-            op_pos++;
-        }
+        // if (name[op_pos] == '-') {
+        //     if (name[op_pos + 1] != '>') {
+        //         sdb::error::send("Invalid operator");
+        //     }
+        //     data = data.deref_pointer(get_process());
+        //     op_pos++;
+        // }
         if (name[op_pos] == '.' or name[op_pos] == '>') {
             auto member_name_start = op_pos + 1;
             op_pos = name.find_first_of(".-[", member_name_start);
