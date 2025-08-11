@@ -245,7 +245,7 @@ sdb::typed_data sdb::typed_data::read_member(const sdb::process& proc, std::stri
 {
     auto die = type_.get_die();
     auto children = die.children();
-    auto it = std::find_if(children.begin(), children.end(), [&](auto& child) { return (child.name.value_or("") == member_name); });
+    auto it = std::find_if(children.begin(), children.end(), [&](auto& child) { return (child.name().value_or("") == member_name); });
     if (it == children.end()) sdb::error::send("No such member");
     auto var = *it;
     auto value_type = var[DW_AT_type].as_type();
