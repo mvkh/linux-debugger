@@ -501,40 +501,11 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
             name = name.substr(int_end + 1);
         }
 
-        // }
-        //  else if (name[op_pos] == '[') {
-        //     auto int_end = name.find(']', op_pos);
-        //     auto index_str = name.substr(op_pos + 1, int_end - op_pos - 1);
-        //     char* end;
-        //     auto index = to_integral<std::size_t>(index_str);
-        //     if (!index) {
-        //         sdb::error::send("Invalid index");
-        //     }
-        //     data = data.index(get_process(), *index);
-        //     name = name.substr(int_end + 1);
-        // }
-
         op_pos = name.find_first_of(".-[");
     }
 
     return data;
 }
-
-// sdb::typed_data sdb::target::resolve_indirect_name(
-//     std::string name, sdb::file_addr pc) const {
-//     auto op_pos = name.find_first_of(".-[");
-
-//     auto var_name = name.substr(0, op_pos);
-
-//     auto data = get_initial_variable_data(*this, var_name, pc);
-
-//     while (op_pos != std::string::npos) {
-
-//         op_pos = name.find_first_of(".-[");
-//     }
-
-//     return data;
-// }
 
 std::optional<sdb::die> sdb::target::find_variable(std::string name, file_addr pc) const
 {
