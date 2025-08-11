@@ -69,7 +69,7 @@ namespace sdb
 
         public:
 
-            typed_data(std::vector<std::byte> data, type value_type, std::optional<virt_addr> address = nullopt):
+            typed_data(std::vector<std::byte> data, type value_type, std::optional<virt_addr> address = std::nullopt):
                 data_(std::move(data)), type_(value_type), address_(address)
             {}
 
