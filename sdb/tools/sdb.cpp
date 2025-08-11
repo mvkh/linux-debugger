@@ -918,7 +918,7 @@ namespace
     void handle_variable_locals_command(sdb::target& target)
     {
         auto pc = target.get_pc_file_address();
-        auto scope = pc.elf_file()->get_dwarf().scopes_at_address(pc);
+        auto scopes = pc.elf_file()->get_dwarf().scopes_at_address(pc);
         std::unordered_set<std::string> seen;
         for (auto& scope: scopes)
             for (auto& var: scope.children())
