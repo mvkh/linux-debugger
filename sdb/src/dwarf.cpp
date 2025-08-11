@@ -1930,7 +1930,7 @@ std::optional<sdb::die> sdb::dwarf::find_local_variable(std::string name, file_a
         for (auto& child: scope.children())
         {
             auto tag = child.abbrev_entry()->tag;
-            if (((tag == DW_TAG_variable) || (tag == DW_TAG_formal_parameter)) && (child.name == name)) return child;
+            if (((tag == DW_TAG_variable) || (tag == DW_TAG_formal_parameter)) && (child.name() == name)) return child;
         }
 
     return std::nullopt;
