@@ -78,7 +78,7 @@ namespace
         return visualize_subrange(proc, value_type, data.data(), dimensions);
     }
 
-    std::string visualize_base_type(const sdb::process& proc, const sdb::typed_data& data)
+    std::string visualize_base_type(const sdb::typed_data& data)
     {
         auto &type = data.value_type();
         auto die = type.get_die();
