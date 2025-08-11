@@ -972,7 +972,7 @@ namespace
 
             } else {
 
-                fmt::print("None")
+                fmt::print("None");
             }
         };
 
@@ -1001,7 +1001,7 @@ namespace
         if (is_prefix(args[1], "locals"))
         {
             handle_variable_locals_command(target);
-            return
+            return;
         }
 
         if (args.size() < 3) 
