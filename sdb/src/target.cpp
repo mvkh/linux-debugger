@@ -494,7 +494,7 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
 
         } else if (name[op_pos] == '[') {
 
-            auto int_end = name.find_first(']', op_pos);
+            auto int_end = name.find_first_of(']', op_pos);
             auto index_str = name.substr(op_pos + 1, int_end - 1);
             auto index = to_integral<std::size_t>(index_str);
             if (!index) sdb::error::send("Invalid index");
@@ -502,7 +502,7 @@ sdb::typed_data sdb::target::resolve_indirect_name(std::string name, file_addr p
             name = name.substr(int_end + 1);
         }
 
-        op_pos = name.find_first_of(".-[")
+        op_pos = name.find_first_of(".-[");
     }
 
     return data;
