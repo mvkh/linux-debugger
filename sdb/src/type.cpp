@@ -128,9 +128,9 @@ namespace
                     default: sdb::error::send("Unsupported unsigned integer size");
                 }
 
-            case DW_ATE_signed_char: return fmt::format("{}", sdb::from_bytes<signed_char>(ptr));
+            case DW_ATE_signed_char: return fmt::format("{}", sdb::from_bytes<signed char>(ptr));
 
-            case DW_ATE_unsigned_char: return fmt::format("{}", sdb::from_bytes<unsigned_char>(ptr));
+            case DW_ATE_unsigned_char: return fmt::format("{}", sdb::from_bytes<unsigned char>(ptr));
 
             case DW_ATE_UTF: sdb::error::send("DW_ATE_UTF is not implemented");
 
