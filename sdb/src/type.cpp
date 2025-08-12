@@ -144,7 +144,7 @@ namespace
         auto field_type = field[DW_AT_type].as_type();
 
         auto bit_size = bitfield_info ? bitfield_info->bit_size : field_type.byte_size() * 8;
-        auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location] * 8 + bit_offset;
+        auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location].as_int() * 8 + bit_offset;
         auto eightbyte_index = current_bit_offset / 64;
 
         if (field_type.is_class_type())
