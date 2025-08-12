@@ -55,7 +55,7 @@ namespace
         return {std::move(data_vec), var_type, address};
     }
 
-    sdb::typed_dataparse_argument(sdb::target& target, pid_t tid, std::string_view arg)
+    sdb::typed_data parse_argument(sdb::target& target, pid_t tid, std::string_view arg)
     {
         if (arg.empty()) sdb::error::send("Empty argument");
 
