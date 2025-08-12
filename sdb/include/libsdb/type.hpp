@@ -25,7 +25,7 @@ namespace sdb
     {
         private:
 
-            std::variant<die, builtin_type> info;
+            std::variant<die, builtin_type> info_;
             mutable std::optional<std::size_t> byte_size_;
 
             std::size_t compute_byte_size() const;
