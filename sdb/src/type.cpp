@@ -466,7 +466,7 @@ bool sdb::type::operator==(const type& rhs) const
     auto lhs_stripped = strip_all();
     auto rhs_stripped = rhs.strip_all();
     auto lhs_name = lhs_stripped.get_die().name();
-    auto rhs_name = rhs_stripped.get_die().name
+    auto rhs_name = rhs_stripped.get_die().name();
     return (lhs_name && rhs_name && (rhs_name == lhs_name));
 }
 
