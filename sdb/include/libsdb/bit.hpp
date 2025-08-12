@@ -54,6 +54,20 @@ namespace sdb
         return ret;
     }
 
+    template <class From>
+    sdb::span<const std::byte> to_byte_span(const From& from) 
+    { 
+        return {as_bytes(from), sizeof(From)}; 
+    }
+
+    template <class From>
+    std::vector<std::byte> to_byte_vec(const From& from)
+    {
+        std::vector<std::byte> ret(sizeof(From));
+        std::memcpy(ret.data(), as_bytes(from), sizeof(From));
+        return ret;
+    }
+
     inline void memcpy_bits(std::uint8_t* dest, std::uint32_t dest_bit, const std::uint8_t* src, std::uint32_t src_bit, std::uint32_t n_bits)
     {
         for (;n_bits; --n_bits, ++src_bit, ++dest_bit)

@@ -942,7 +942,7 @@ namespace
         auto name = args[2];
         auto pc = target.get_pc_file_address();
         auto data = target.resolve_indirect_name(name, pc);
-        auto str = data.visualize(target.get_process());
+        auto str = data.variable->visualize(target.get_process());
         fmt::print("Value: {}\n", str);
     }
 
@@ -1017,6 +1017,7 @@ namespace
         } else if (is_prefix(args[1], "location")) {
 
             handle_variable_location_command(target, args);
+            
         }
     }
 
@@ -1101,6 +1102,16 @@ namespace
         } else if (is_prefix(command, "variable")) {
 
             handle_variable_command(*target, args);
+            
+        } else if (is_prefix(command, "expression")) {
+
+            auto expr = line.substr(line.find(' ') + 1);
+            auto ret = target->evaluate_expression(expr);
+            if (ret)
+            {
+                auto str = ret->return_value.visualize(target->get_process());
+                fmt::print("${}: {}\n", ret->id, str;)
+            }
             
         } else {
 

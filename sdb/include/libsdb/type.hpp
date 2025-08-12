@@ -4,26 +4,51 @@
 #include <string_view>
 #include <optional>
 #include <vector>
+#include <variant>
 #include <libsdb/dwarf.hpp>
 
 namespace sdb
 {
     class process;
 
+    enum class builtin_type 
+    {
+        string, character, integer, boolean, floating_point
+    };
+
+    enum class parameter_class
+    {
+        integer, sse, sseup, x87, x87up, complex_x87, memory, no_class
+    };
+
     class type 
     {
         private:
 
-            die die_;
+            std::variant<die, builtin_type> info;
             mutable std::optional<std::size_t> byte_size_;
 
             std::size_t compute_byte_size() const;
 
         public:
 
-            type(die die): die_(std::move(die)) {}
+            type(die die): info_(std::move(die)) {}
+            type(builtin_type type): info_(type) {}
 
-            die get_die() const { return die_; }
+            die get_die() const 
+            { 
+                if (!std::holds_alternative<die>(info_)) sdb::error::send("Type is not from DWARF info");
+                return std::get<die>(info_);
+            }
+
+            builtin_type get_builtin_type() const
+            {
+                if (!std::holds_alternative<builtin_type>(info_)) sdb::error::send("Type is not a builtin type");
+                return std::get<builtin_type>(info_);
+            }
+
+            bool is_from_dwarf() const { return std::holds_alternative<die>(info_); }
+
             std::size_t byte_size() const;
             bool is_char_type() const;
 
@@ -57,6 +82,17 @@ namespace sdb
                 return strip<DW_TAG_const_type, DW_TAG_volatile_type, DW_TAG_typedef, 
                     DW_TAG_reference_type, DW_TAG_rvalue_reference_type, DW_TAG_pointer_type>();
             }
+
+            bool operator==(const type& rhs) const;
+            bool operator!=(const type& rhs) const { return !(*this == rhs); }
+
+            std::size_t alignment() const;
+            bool has_unaligned_fields() const;
+            bool is_non_trivial_for_calls() const;
+            std::array<parameter_class, 2> get_parameter_classes() const;
+
+            bool is_class_type() const;
+            bool is_reference_type() const;
     };
 
     class typed_data 
