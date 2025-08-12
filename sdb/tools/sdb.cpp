@@ -1110,7 +1110,7 @@ namespace
             if (ret)
             {
                 auto str = ret->return_value.visualize(target->get_process());
-                fmt::print("${}: {}\n", ret->id, str;)
+                fmt::print("${}: {}\n", ret->id, str);
             }
             
         } else {
