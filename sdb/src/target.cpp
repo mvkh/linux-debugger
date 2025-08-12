@@ -756,7 +756,7 @@ std::vector<std::byte> sdb::target::read_location_data(const dwarf_expression::r
     sdb::error::send("Invalid location type");
 }
 
-sdb::resolve_indirect_name_result sdb::target::resolve_indirect_name(std::string name, file_addr pc) const
+sdb::target::resolve_indirect_name_result sdb::target::resolve_indirect_name(std::string name, file_addr pc) const
 {
     auto op_pos = name.find_first_of(".-[(");
 
