@@ -281,7 +281,7 @@ std::size_t sdb::type::compute_byte_size() const
         }
     }
 
-    die_ = std::get<sdb::die>(info_);
+    auto& die_ = std::get<sdb::die>(info_);
 
     auto tag = die_.abbrev_entry()->tag;
 
