@@ -852,7 +852,7 @@ TEST_CASE("Global variables", "[variable]")
     REQUIRE(name_vis == "\"Marshmallow\"");
 
     auto cats = target->resolve_indirect_name("cats[1].age", target->get_pc_file_address());
-    auto cats_vis = cats.variable->.visualize(target->get_process());
+    auto cats_vis = cats.variable->visualize(target->get_process());
     REQUIRE(cats_vis == "8");
 }
 
