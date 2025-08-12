@@ -8,6 +8,7 @@
 #include <optional>
 #include <fstream>
 #include <cxxabi.h>
+#include <iostream>
 
 namespace
 {
@@ -897,6 +898,7 @@ std::optional<sdb::target::evaluate_expression_result> sdb::target::evaluate_exp
     if (paren_pos == std::string::npos) sdb::error::send("Invalid expression");
 
     std::string name{expr.substr(0, paren_pos + 1)};
+    std::cout << "Name: " << name << std::endl;
     auto [variable, funcs] = resolve_indirect_name(name, pc);
     if (funcs.empty()) sdb::error::send("Invalid expression");
 
