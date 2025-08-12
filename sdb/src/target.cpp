@@ -213,7 +213,7 @@ namespace
         }
 
         auto params = func.parameter_types();
-        for (auto i = 0; i < param.size(); ++i)
+        for (auto i = 0; i < params.size(); ++i)
         {
             auto& param = params[i];
             auto param_classes = param.get_parameter_classes();
