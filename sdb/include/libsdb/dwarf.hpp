@@ -472,7 +472,7 @@ namespace sdb
             {
                 std::uint64_t bit_size;
                 std::uint64_t storage_byte_size;
-                std::uint8_t but_offset;
+                std::uint8_t bit_offset;
             };
 
             std::optional<bitfield_information> get_bitfield_information(std::uint64_t class_byte_size) const;
