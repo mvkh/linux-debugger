@@ -796,7 +796,7 @@ sdb::target::resolve_indirect_name_result sdb::target::resolve_indirect_name(std
                         funcs.push_back(child);
 
                 if (funcs.empty()) sdb::error::send("No such member function");
-                return {std::move(data), std::move(funcs)}
+                return {std::move(data), std::move(funcs)};
             }
 
             data = data.read_member(get_process(), member_name);
@@ -861,7 +861,7 @@ std::optional<sdb::target::evaluate_expression_result> sdb::target::evaluate_exp
     auto tid = otid.value_or(process_->current_thread());
     auto pc = get_pc_file_address(tid);
 
-    auto param_pos = expr.find('(');
+    auto paren_pos = expr.find('(');
     if (paren_pos == std::string::npos) sdb::error::send("Invalid expression");
 
     std::string name{expr.substr(0, paren_pos + 1)};
