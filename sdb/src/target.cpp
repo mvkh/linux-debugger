@@ -78,7 +78,7 @@ namespace
             if ((arg.size() != 3) || (arg[2] != '\'')) sdb::error::send("Invalid character literal");
             return {sdb::to_byte_vec(arg[1]), sdb::builtin_type::character};
 
-        } else if ((arg[0] == '-') || std::is_digit(arg[0])) {
+        } else if ((arg[0] == '-') || std::isdigit(arg[0])) {
 
             if (arg.find(".") != std::string::npos)
             {
@@ -179,7 +179,7 @@ namespace
     }
 
     void setup_arguments(sdb::target& target, sdb::die func, std::vector<sdb::typed_data> args,
-        sdb::registers& regs, std::optional<sdb::virt_addrs> return_slot)
+        sdb::registers& regs, std::optional<sdb::virt_addr> return_slot)
     {
         std::array<sdb::register_id, 6> int_regs = {sdb::register_id::rdi, sdb::register_id::rsi, sdb::register_id::rdx,
             sdb::register_id::rcx, sdb::register_id::r8, sdb::register_id::r9};
@@ -205,11 +205,11 @@ namespace
         {
             auto ret_type = func[DW_AT_type].as_type();
             auto ret_class = ret_type.get_parameter_classes()[0];
-            if (ret_class == sdb::parameter_class::memory
+            if (ret_class == sdb::parameter_class::memory)
             {
                 current_int_reg++;
                 regs.write_by_id(int_regs[0], return_slot->addr(), true);
-            })
+            }
         }
 
         auto params = func.parameter_types();
