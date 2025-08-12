@@ -528,7 +528,7 @@ bool sdb::type::is_non_trivial_for_calls() const
                 if (child[DW_AT_type].as_type().is_non_trivial_for_calls())
                     return true;
 
-            if (child.contains(DW_AT_virtuality) && (child[DW_AT_virtuality] != DW_VIRTUALITY_none))
+            if (child.contains(DW_AT_virtuality) && (child[DW_AT_virtuality].as_int() != DW_VIRTUALITY_none))
                 return true;
 
             if (child.abbrev_entry()->tag == DW_TAG_subprogram)
