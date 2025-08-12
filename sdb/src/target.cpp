@@ -336,6 +336,38 @@ namespace
         target.get_process().write_memory(return_slot, value);
         return {sdb::typed_data{std::move(value), func[DW_AT_type].as_type(), return_slot}};
     }
+
+    std::optional<sdb::typed_data> inferior_call_from_dwarf(sdb::target& target, sdb::die func, 
+        const std::vector<sdb::typed_data>& args, sdb::virt_addr return_addr, pid_t tid)
+    {
+        auto& regs = target.get_process().get_registers(tid);
+        auto saved_regs = regs;
+
+        sdb::virt_addr call_addr;
+        if (func.contains(DW_AT_low_pc) || func.contains(DW_AT_ranges))
+        {
+            call_addr = func.low_pc().to_virt_addr();
+
+        } else {
+
+            auto def = func.cu()->dwarf_info()->get_member_function_definition(func);
+            if (!def) sdb::error::send("No function defition found");
+            call_addr = def->low_pc().to_virt_addr();
+        }
+
+        std::optional<sdb::virt_addr> return_slot;
+        if (func.contains(DW_AT_type))
+        {
+            auto ret_type = func[DW_AT_type].as_type();
+            return_slot = target.inferior_malloc(ret_type.byte_size());
+        }
+
+        setup_arguments(target, func, args, regs, return_slot);
+        auto new_regs = target.get_process().inferior_call(call_addr, return_addr, saved_regs, tid);
+
+        if (func.contains(DW_AT_TYPE)) return read_return_value(target, func, *return_slot, new_regs);
+        return std::nullopt;
+    }
 }
 
 std::unique_ptr<sdb::target> sdb::target::launch(std::filesystem::path path, std::optional<int> stdout_replacement)
