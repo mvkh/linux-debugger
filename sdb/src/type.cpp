@@ -138,6 +138,30 @@ namespace
         }
     }
 
+    void classify_class_field(const sdb::type& type, const sdb::die& field, std::array<sdb::parameter_class, 2>& classes, int bit_offset)
+    {
+        auto bitfield_info = field.get_bitfield_information(type.byte_size);
+        auto field_type = field[DW_AT_type].as_type();
+
+        auto bit_size = bitfield_info ? bitfield_info->bit_size : field.byte_size() * 8;
+        auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location] * 8 + bit_offset;
+        auto eightbyte_index = current_bit_offset / 64;
+
+        if (field_type.is_class_type())
+        {
+            for (auto child: field_type.get_die().children())
+                if ((child.abbrev_entry()->tag == DW_TAG_member) && 
+                    (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
+                    classify_class_field(type, child, classes, current_bit_offset);
+
+        } else {
+
+            auto field_classes = field_type.get_parameter_classes();
+            classes[eightbyte_index] = merge_parameter_classes(classes[eightbyte_index], field_classes[0]);
+            if (eightbyte_index == 0) classes[1] = merge_parameter_classes(classes[1], field_classes[1]);
+        }
+    }
+
     std::array<sdb::parameter_class, 2> classify_class_type(const sdb::type& type)
     {
         if (type.is_non_trivial_for_calls()) sdb::error::send("NTFPOC types are not supported");
@@ -188,30 +212,6 @@ namespace
             return parameter_class::memory;
 
         return parameter_class::sse;
-    }
-
-    void classify_class_field(const sdb::type& type, const sdb::die& field, std::array<sdb::parameter_class, 2>& classes, int bit_offset)
-    {
-        auto bitfield_info = field.get_bitfield_information(type.byte_size);
-        auto field_type = field[DW_AT_type].as_type();
-
-        auto bit_size = bitfield_info ? bitfield_info->bit_size : field.byte_size() * 8;
-        auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location] * 8 + bit_offset;
-        auto eightbyte_index = current_bit_offset / 64;
-
-        if (field_type.is_class_type())
-        {
-            for (auto child: field_type.get_die().children())
-                if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                    (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
-                    classify_class_field(type, child, classes, current_bit_offset);
-
-        } else {
-
-            auto field_classes = field_type.get_parameter_classes();
-            classes[eightbyte_index] = merge_parameter_classes(classes[eightbyte_index], field_classes[0]);
-            if (eightbyte_index == 0) classes[1] = merge_parameter_classes(classes[1], field_classes[1]);
-        }
     }
 
     bool is_destructor(const sdb::die& func)
