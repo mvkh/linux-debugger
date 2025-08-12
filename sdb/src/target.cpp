@@ -918,7 +918,7 @@ std::optional<sdb::target::evaluate_expression_result> sdb::target::evaluate_exp
 
 const sdb::typed_data& sdb::target::get_expression_result(std::size_t i) const
 {
-    auto res = expression_results_[i];
+    auto& res = expression_results_[i];
     auto new_data = process_->read_memory(*res.address(), res.value_type().byte_size());
     res = typed_data{std::move(new_data), res.value_type(), res.address()};
     return res;
