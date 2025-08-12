@@ -131,21 +131,21 @@ namespace
                 auto this_type = obj_ptr_die[DW_AT_type].as_type();
                 args.push_back({std::move(data), this_type});
             }
-
-            auto args_start = 1;
-            auto args_end = arg_string.find(')');
-
-            while (args_start < args_end)
-            {
-                auto comma_pos = arg_string.find(',', args_start);
-                if (comma_pos == std::string::npos) comma_pos = args_end;
-                auto arg_expr = arg_string.substr(args_start, comma_pos - args_start);
-                args.push_back(parse_argument(target, tid, arg_expr));
-                args_start = comma_pos + 1;
-            }
-
-            return args;
         }
+
+        auto args_start = 1;
+        auto args_end = arg_string.find(')');
+
+        while (args_start < args_end)
+        {
+            auto comma_pos = arg_string.find(',', args_start);
+            if (comma_pos == std::string::npos) comma_pos = args_end;
+            auto arg_expr = arg_string.substr(args_start, comma_pos - args_start);
+            args.push_back(parse_argument(target, tid, arg_expr));
+            args_start = comma_pos + 1;
+        }
+
+        return args;
     }
 
     sdb::die resolve_overload(const std::vector<sdb::die>& funcs, const std::vector<sdb::typed_data>& args)
