@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstring>
-#include <cstdin>
+#include <cstdint>
 #include <stdexcept>
 
 struct cat
@@ -96,5 +96,5 @@ big b = {5, 6, 7};
 
 int main()
 {
-    
+
 }
