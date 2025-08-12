@@ -869,21 +869,22 @@ std::optional<sdb::target::evaluate_expression_result> sdb::target::evaluate_exp
     if (funcs.empty()) sdb::error::send("Invalid expression");
 
     auto entry_point = virt_addr{process_->get_auxv()[AT_ENTRY]};
-    breakpoint_.get_by_address(entry_point).install_hit_handler([&]{ return false; });
+    breakpoints_.get_by_address(entry_point).install_hit_handler([&]{ return false; });
 
     auto arg_string = expr.substr(paren_pos);
-    auto args = collect_arguments(*this, tid, arg_string, funcs, args);
+    auto args = collect_arguments(*this, tid, arg_string, funcs, variable);
+    auto func = resolve_overload(funcs, args);
     auto ret = inferior_call_from_dwarf(*this, func, args, entry_point, tid);
     if (ret)
     {
         expression_results_.push_back(*ret);
-        return evaluate_expression_result{std::mov(*ret), expression_results_.size() - 1};
+        return evaluate_expression_result{std::move(*ret), expression_results_.size() - 1};
     }
 
     return std::nullopt;
 }
 
-const typed_data& sdb::target::get_expression_result(std::size_t i) const
+const sdb::typed_data& sdb::target::get_expression_result(std::size_t i) const
 {
     auto res = expression_results_[i];
     auto new_data = process_->read_memory(*res.address(), res.value_type().byte_size());
