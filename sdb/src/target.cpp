@@ -365,7 +365,7 @@ namespace
         setup_arguments(target, func, args, regs, return_slot);
         auto new_regs = target.get_process().inferior_call(call_addr, return_addr, saved_regs, tid);
 
-        if (func.contains(DW_AT_TYPE)) return read_return_value(target, func, *return_slot, new_regs);
+        if (func.contains(DW_AT_type)) return read_return_value(target, func, *return_slot, new_regs);
         return std::nullopt;
     }
 }
