@@ -813,19 +813,19 @@ void sdb::process::write_gprs(const user_regs_struct& gprs, std::optional<pid_t>
 }
 
 sdb::registers sdb::process::inferior_call(virt_addr func_addr, virt_addr return_addr, 
-    const registers& regs_to_restor, std::optional<pid_t> otid)
+    const registers& regs_to_restore, std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(current_thread_);
     auto& regs = get_registers(tid);
     regs.write_by_id(sdb::register_id::rip, func_addr.addr(), true);
     auto rsp = regs.read_by_id_as<std::uint64_t>(sdb::register_id::rsp);
     rsp -= 8;
-    write_memory(sdb::virt_addr{rsp}, to_type_span(return_addr.addr()));
+    write_memory(sdb::virt_addr{rsp}, to_byte_span(return_addr.addr()));
     regs.write_by_id(sdb::register_id::rsp, rsp, true);
 
     resume(tid);
     auto reason = wait_on_signal(tid);
-    if (reason.reason != sdb::process::stopped) sdb::error::send("Function call failed");
+    if (reason.reason != sdb::process_state::stopped) sdb::error::send("Function call failed");
 
     auto new_regs = regs;
     regs = regs_to_restore;
