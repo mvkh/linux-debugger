@@ -813,7 +813,7 @@ void sdb::process::write_gprs(const user_regs_struct& gprs, std::optional<pid_t>
 }
 
 sdb::registers sdb::process::inferior_call(virt_addr func_addr, virt_addr return_addr, 
-    const registers& regs_to_restor, std::optional<pid_t> otid = std::nullopt)
+    const registers& regs_to_restor, std::optional<pid_t> otid)
 {
     auto tid = otid.value_or(current_thread_);
     auto& regs = get_registers(tid);
