@@ -1961,7 +1961,7 @@ std::vector<sdb::type> sdb::die::parameter_types() const
     return ret;
 }
 
-std::optional<die> sdb::dwarf::get_member_function_definition(const die& declaration) const
+std::optional<sdb::die> sdb::dwarf::get_member_function_definition(const die& declaration) const
 {
     index();
 
