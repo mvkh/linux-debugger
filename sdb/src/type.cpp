@@ -151,14 +151,14 @@ namespace
         {
             auto value_type = type.get_die()[DW_AT_type].as_type();
             classes = value_type.get_parameter_classes();
-            if ((type.byte_size > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
+            if ((type.byte_size() > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
 
         } else {
 
             for (auto child: type.get_die().children())
                 if ((child.abbrev_entry()->tag == DW_TAG_member) && 
                     (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
-                    classify_class_type(type, child, classes, 0);
+                    classify_class_field(type, child, classes, 0);
         }
 
         if ((classes[0] == sdb::parameter_class::memory) || (classes[1] == sdb::parameter_class::memory))
