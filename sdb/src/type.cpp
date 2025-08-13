@@ -471,91 +471,69 @@ bool sdb::type::operator==(const type& rhs) const
     return (lhs_name && rhs_name && (*rhs_name == *lhs_name));
 }
 
-std::size_t sdb::type::alignment() const
-{
-    if (!is_from_dwarf()) return byte_size();
-
-    if (!is_class_type())
-    {
-        std::size_t max_alignment = 0;
-        for (auto child: get_die().children())
-        {
-            if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
-            {
-                auto member_type = child[DW_AT_type].as_type();
-                if (member_type.alignment() > max_alignment) max_alignment = member_type.alignment();
-            }
-        }
-        return max_alignment;
-    }
-
-    if (get_die().abbrev_entry()->tag == DW_TAG_array_type) return get_die()[DW_AT_type].as_type().alignment();
-
-    return byte_size();
-}
-
-// bool sdb::type::has_unaligned_fields() const
+// std::size_t sdb::type::alignment() const
 // {
-//     if (!is_from_dwarf()) return false;
+//     if (!is_from_dwarf()) return byte_size();
 
-//     if (is_class_type())
+//     if (!is_class_type())
 //     {
+//         std::size_t max_alignment = 0;
 //         for (auto child: get_die().children())
-//             if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
+//         {
+//             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
+//                 child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
 //             {
 //                 auto member_type = child[DW_AT_type].as_type();
-//                 if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
-//                 if (member_type.has_unaligned_fields()) return true;
-//             }
-//     }
-
-//     return false;
-// }
-
-// std::size_t sdb::type::alignment() const {
-//     if (!is_from_dwarf()) {
-//         return byte_size();
-//     }
-//     if (is_class_type()) {
-//         std::size_t max_alignment = 0;
-//         for (auto child : get_die().children()) {
-//             if (child.abbrev_entry()->tag == DW_TAG_member and
-//                 child.contains(DW_AT_data_member_location) or
-//                 child.contains(DW_AT_data_bit_offset)) {
-//                 auto member_type = child[DW_AT_type].as_type();
-//                 if (member_type.alignment() > max_alignment) {
-//                     max_alignment = member_type.alignment();
-//                 }
+//                 if (member_type.alignment() > max_alignment) max_alignment = member_type.alignment();
 //             }
 //         }
 //         return max_alignment;
 //     }
-//     if (get_die().abbrev_entry()->tag == DW_TAG_array_type) {
-//         return get_die()[DW_AT_type].as_type().alignment();
-//     }
+
+//     if (get_die().abbrev_entry()->tag == DW_TAG_array_type) return get_die()[DW_AT_type].as_type().alignment();
+
 //     return byte_size();
 // }
 
-bool sdb::type::has_unaligned_fields() const {
+std::size_t sdb::type::alignment() const {
     if (!is_from_dwarf()) {
-        return false;
+        return byte_size();
     }
     if (is_class_type()) {
+        std::size_t max_alignment = 0;
         for (auto child : get_die().children()) {
             if (child.abbrev_entry()->tag == DW_TAG_member and
-                child.contains(DW_AT_data_member_location)) {
+                child.contains(DW_AT_data_member_location) or
+                child.contains(DW_AT_data_bit_offset)) {
                 auto member_type = child[DW_AT_type].as_type();
-                if (child[DW_AT_data_member_location].as_int() %
-                    member_type.alignment() != 0) {
-                    return true;
-                }
-                if (member_type.has_unaligned_fields()) {
-                    return true;
+                if (member_type.alignment() > max_alignment) {
+                    max_alignment = member_type.alignment();
                 }
             }
         }
+        return max_alignment;
     }
+    if (get_die().abbrev_entry()->tag == DW_TAG_array_type) {
+        return get_die()[DW_AT_type].as_type().alignment();
+    }
+    return byte_size();
+}
+
+bool sdb::type::has_unaligned_fields() const
+{
+    if (!is_from_dwarf()) return false;
+
+    if (is_class_type())
+    {
+        for (auto child: get_die().children())
+            if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
+            {
+                auto member_type = child[DW_AT_type].as_type();
+                if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
+                if (member_type.has_unaligned_fields()) return true;
+            }
+    }
+
     return false;
 }
 
