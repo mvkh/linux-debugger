@@ -257,124 +257,66 @@ namespace
     }
 }
 
-// std::size_t sdb::type::byte_size() const
-// {
-//     if (!byte_size_.has_value()) byte_size_ = compute_byte_size();
+std::size_t sdb::type::byte_size() const
+{
+    if (!byte_size_.has_value()) byte_size_ = compute_byte_size();
 
-//     return *byte_size_;
-// }
-
-// std::size_t sdb::type::compute_byte_size() const
-// {
-//     if (!is_from_dwarf())
-//     {
-//         switch (get_builtin_type())
-//         {
-//             case builtin_type::boolean: return 1;
-
-//             case builtin_type::character: return 1;
-
-//             case builtin_type::integer: return 8;
-
-//             case builtin_type::floating_point: return 8;
-
-//             case builtin_type::string: return 8;
-//         }
-//     }
-
-//     auto& die_ = std::get<sdb::die>(info_);
-
-//     auto tag = die_.abbrev_entry()->tag;
-
-//     if (tag == DW_TAG_pointer_type) return 8;
-
-//     if (tag == DW_TAG_ptr_to_member_type)
-//     {
-//         auto member_type = die_[DW_AT_type].as_type();
-//         if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) return 16;
-//         return 8;
-//     }
-
-//     if (tag == DW_TAG_array_type)
-//     {
-//         auto value_size = die_[DW_AT_type].as_type().byte_size();
-//         for (auto& child: die_.children())
-//             if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
-//                 value_size *= child[DW_AT_upper_bound].as_int() + 1;
-//         return value_size;
-//     }
-
-//     if (die_.contains(DW_AT_byte_size)) return die_[DW_AT_byte_size].as_int();
-
-//     if (die_.contains(DW_AT_type)) return die_[DW_AT_type].as_type().byte_size();
-
-//     return 0;
-// }
-
-// bool sdb::type::is_char_type() const
-// {
-//     auto stripped = strip_cv_typedef().get_die();
-//     if (!(stripped.contains(DW_AT_encoding))) return false;
-//     auto encoding = stripped[DW_AT_encoding].as_int();
-//     return ((stripped.abbrev_entry()->tag == DW_TAG_base_type) && ((encoding == DW_ATE_signed_char) || (encoding == DW_ATE_unsigned_char)));
-// }
-
-std::size_t sdb::type::byte_size() const {
-    if (!byte_size_.has_value())
-        byte_size_ = compute_byte_size();
     return *byte_size_;
 }
 
-std::size_t sdb::type::compute_byte_size() const {
-    if (!is_from_dwarf()) {
-        switch (get_builtin_type()) {
-        case builtin_type::boolean: return 1;
-        case builtin_type::character: return 1;
-        case builtin_type::integer: return 8;
-        case builtin_type::floating_point: return 8;
-        case builtin_type::string: return 8;
+std::size_t sdb::type::compute_byte_size() const
+{
+    if (!is_from_dwarf())
+    {
+        switch (get_builtin_type())
+        {
+            case builtin_type::boolean: return 1;
+
+            case builtin_type::character: return 1;
+
+            case builtin_type::integer: return 8;
+
+            case builtin_type::floating_point: return 8;
+
+            case builtin_type::string: return 8;
         }
     }
 
     auto& die_ = std::get<sdb::die>(info_);
+
     auto tag = die_.abbrev_entry()->tag;
 
-    if (tag == DW_TAG_pointer_type) {
-        return 8;
-    }
-    if (tag == DW_TAG_ptr_to_member_type) {
+    if (tag == DW_TAG_pointer_type) return 8;
+
+    if (tag == DW_TAG_ptr_to_member_type)
+    {
         auto member_type = die_[DW_AT_type].as_type();
-        if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) {
-            return 16;
-        }
+        if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) return 16;
         return 8;
     }
-    if (tag == DW_TAG_array_type) {
+
+    if (tag == DW_TAG_array_type)
+    {
         auto value_size = die_[DW_AT_type].as_type().byte_size();
-        for (auto& child : die_.children()) {
-            if (child.abbrev_entry()->tag == DW_TAG_subrange_type) {
+        for (auto& child: die_.children())
+            if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
                 value_size *= child[DW_AT_upper_bound].as_int() + 1;
-            }
-        }
         return value_size;
     }
-    if (die_.contains(DW_AT_byte_size)) {
-        return die_[DW_AT_byte_size].as_int();
-    }
-    if (die_.contains(DW_AT_type)) {
-        return die_[DW_AT_type].as_type().byte_size();
-    }
+
+    if (die_.contains(DW_AT_byte_size)) return die_[DW_AT_byte_size].as_int();
+
+    if (die_.contains(DW_AT_type)) return die_[DW_AT_type].as_type().byte_size();
 
     return 0;
 }
 
-bool sdb::type::is_char_type() const {
+bool sdb::type::is_char_type() const
+{
     auto stripped = strip_cv_typedef().get_die();
-    if (!stripped.contains(DW_AT_encoding)) return false;
+    if (!(stripped.contains(DW_AT_encoding))) return false;
     auto encoding = stripped[DW_AT_encoding].as_int();
-    return stripped.abbrev_entry()->tag == DW_TAG_base_type and
-        encoding == DW_ATE_signed_char or
-        encoding == DW_ATE_unsigned_char;
+    return ((stripped.abbrev_entry()->tag == DW_TAG_base_type) && ((encoding == DW_ATE_signed_char) || (encoding == DW_ATE_unsigned_char)));
 }
 
 std::string sdb::typed_data::visualize(const sdb::process& proc, int depth) const
@@ -403,12 +345,85 @@ std::string sdb::typed_data::visualize(const sdb::process& proc, int depth) cons
     }
 }
 
-sdb::typed_data sdb::typed_data::fixup_bitfield(const sdb::process& proc, const sdb::die& member_die) const
-{
+// sdb::typed_data sdb::typed_data::fixup_bitfield(const sdb::process& proc, const sdb::die& member_die) const
+// {
+//     auto stripped = type_.strip_cv_typedef();
+//     auto bitfield_info = member_die.get_bitfield_information(stripped.byte_size());
+//     if (bitfield_info)
+//     {
+//         auto [bit_size, storage_byte_size, bit_offset] = *bitfield_info;
+
+//         std::vector<std::byte> fixed_data;
+//         fixed_data.resize(storage_byte_size);
+
+//         auto dest = reinterpret_cast<std::uint8_t*>(fixed_data.data());
+//         auto src = reinterpret_cast<const std::uint8_t*>(data_.data());
+//         memcpy_bits(dest, 0, src, bit_offset, bit_size);
+
+//         return {fixed_data, type_};
+//     }
+
+//     return *this;
+// }
+
+// sdb::typed_data sdb::typed_data::deref_pointer(const sdb::process& proc) const
+// {
+//     auto stripped_type_die = type_.strip_cv_typedef().get_die();
+//     auto tag = stripped_type_die.abbrev_entry()->tag;
+//     if (tag != DW_TAG_pointer_type) sdb::error::send("Not a pointer type");
+//     sdb::virt_addr address{sdb::from_bytes<std::uint64_t>(data_.data())};
+//     auto value_type = stripped_type_die[DW_AT_type].as_type();
+//     auto data_vec = proc.read_memory(address, value_type.byte_size());
+//     return {std::move(data_vec), value_type, address};
+// }
+
+// sdb::typed_data sdb::typed_data::read_member(const sdb::process& proc, std::string_view member_name) const
+// {
+//     auto die = type_.get_die();
+//     auto children = die.children();
+//     auto it = std::find_if(children.begin(), children.end(), [&](auto& child) { return (child.name().value_or("") == member_name); });
+//     if (it == children.end()) sdb::error::send("No such member");
+//     auto var = *it;
+//     auto value_type = var[DW_AT_type].as_type();
+
+//     auto byte_offset = var.contains(DW_AT_data_member_location) ? 
+//         var[DW_AT_data_member_location].as_int() : var[DW_AT_data_bit_offset].as_int() / 8;
+//     auto data_start = data_.begin() + byte_offset;
+//     std::vector<std::byte> member_data{data_start, data_start + value_type.byte_size()};
+
+//     auto data = address_ ? typed_data{std::move(member_data), value_type, *address_ + byte_offset} : typed_data{std::move(member_data), value_type};
+//     return data.fixup_bitfield(proc, var);
+// }
+
+// sdb::typed_data sdb::typed_data::index(const sdb::process& proc, std::size_t index) const
+// {
+//     auto parent_type = type_.strip_cv_typedef().get_die();
+//     auto tag = parent_type.abbrev_entry()->tag;
+//     if ((tag != DW_TAG_array_type) && (tag != DW_TAG_pointer_type)) sdb::error::send("Not an array or pointer type");
+//     auto value_type = parent_type[DW_AT_type].as_type();
+//     auto element_size = value_type.byte_size();
+//     auto offset = index * element_size;
+//     if (tag == DW_TAG_pointer_type)
+//     {
+//         sdb::virt_addr address{sdb::from_bytes<std::uint64_t>(data_.data())};
+//         address += offset;
+//         auto data_vec = proc.read_memory(address, element_size);
+//         return {std::move(data_vec), value_type, address};
+
+//     } else {
+
+//         std::vector<std::byte> data_vec{data_.begin() + offset, data_.begin() + offset + element_size};
+//         if (address_) return {std::move(data_vec), value_type, *address_ + offset};
+//         return {std::move(data_vec), value_type};
+//     }
+// }
+
+sdb::typed_data sdb::typed_data::fixup_bitfield(
+    const sdb::process& proc,
+    const sdb::die& member_die) const {
     auto stripped = type_.strip_cv_typedef();
     auto bitfield_info = member_die.get_bitfield_information(stripped.byte_size());
-    if (bitfield_info)
-    {
+    if (bitfield_info) {
         auto [bit_size, storage_byte_size, bit_offset] = *bitfield_info;
 
         std::vector<std::byte> fixed_data;
@@ -418,61 +433,74 @@ sdb::typed_data sdb::typed_data::fixup_bitfield(const sdb::process& proc, const 
         auto src = reinterpret_cast<const std::uint8_t*>(data_.data());
         memcpy_bits(dest, 0, src, bit_offset, bit_size);
 
-        return {fixed_data, type_};
+        return { fixed_data, type_ };
     }
-
     return *this;
 }
 
-sdb::typed_data sdb::typed_data::deref_pointer(const sdb::process& proc) const
-{
+sdb::typed_data sdb::typed_data::deref_pointer(
+    const sdb::process& proc) const {
     auto stripped_type_die = type_.strip_cv_typedef().get_die();
     auto tag = stripped_type_die.abbrev_entry()->tag;
-    if (tag != DW_TAG_pointer_type) sdb::error::send("Not a pointer type");
-    sdb::virt_addr address{sdb::from_bytes<std::uint64_t>(data_.data())};
+    if (tag != DW_TAG_pointer_type) {
+        sdb::error::send("Not a pointer type");
+    }
+    sdb::virt_addr address{ sdb::from_bytes<std::uint64_t>(data_.data()) };
     auto value_type = stripped_type_die[DW_AT_type].as_type();
-    auto data_vec = proc.read_memory(address, value_type.byte_size());
-    return {std::move(data_vec), value_type, address};
+    auto data_vec = proc.read_memory(
+        address, value_type.byte_size());
+    return { std::move(data_vec), value_type, address };
 }
 
-sdb::typed_data sdb::typed_data::read_member(const sdb::process& proc, std::string_view member_name) const
-{
+sdb::typed_data sdb::typed_data::read_member(
+    const sdb::process& proc, std::string_view member_name) const {
     auto die = type_.get_die();
     auto children = die.children();
-    auto it = std::find_if(children.begin(), children.end(), [&](auto& child) { return (child.name().value_or("") == member_name); });
-    if (it == children.end()) sdb::error::send("No such member");
+    auto it = std::find_if(children.begin(), children.end(),
+        [&](auto& child) { return child.name().value_or("") == member_name; });
+    if (it == children.end()) {
+        sdb::error::send("No such member");
+    }
     auto var = *it;
     auto value_type = var[DW_AT_type].as_type();
 
-    auto byte_offset = var.contains(DW_AT_data_member_location) ? 
-        var[DW_AT_data_member_location].as_int() : var[DW_AT_data_bit_offset].as_int() / 8;
+    auto byte_offset = var.contains(DW_AT_data_member_location) ?
+        var[DW_AT_data_member_location].as_int() :
+        var[DW_AT_data_bit_offset].as_int() / 8;
     auto data_start = data_.begin() + byte_offset;
-    std::vector<std::byte> member_data{data_start, data_start + value_type.byte_size()};
+    std::vector<std::byte> member_data{ data_start, data_start + value_type.byte_size() };
 
-    auto data = address_ ? typed_data{std::move(member_data), value_type, *address_ + byte_offset} : typed_data{std::move(member_data), value_type};
+    auto data = address_ ?
+        typed_data{ std::move(member_data), value_type, *address_ + byte_offset } :
+        typed_data{ std::move(member_data), value_type };
     return data.fixup_bitfield(proc, var);
 }
 
-sdb::typed_data sdb::typed_data::index(const sdb::process& proc, std::size_t index) const
-{
+sdb::typed_data sdb::typed_data::index(
+    const sdb::process& proc, std::size_t index) const {
     auto parent_type = type_.strip_cv_typedef().get_die();
     auto tag = parent_type.abbrev_entry()->tag;
-    if ((tag != DW_TAG_array_type) && (tag != DW_TAG_pointer_type)) sdb::error::send("Not an array or pointer type");
+    if (tag != DW_TAG_array_type and tag != DW_TAG_pointer_type) {
+        sdb::error::send("Not an array or pointer type");
+    }
     auto value_type = parent_type[DW_AT_type].as_type();
     auto element_size = value_type.byte_size();
     auto offset = index * element_size;
-    if (tag == DW_TAG_pointer_type)
-    {
-        sdb::virt_addr address{sdb::from_bytes<std::uint64_t>(data_.data())};
+    if (tag == DW_TAG_pointer_type) {
+        sdb::virt_addr address{ sdb::from_bytes<std::uint64_t>(data_.data()) };
         address += offset;
-        auto data_vec = proc.read_memory(address, element_size);
-        return {std::move(data_vec), value_type, address};
-
-    } else {
-
-        std::vector<std::byte> data_vec{data_.begin() + offset, data_.begin() + offset + element_size};
-        if (address_) return {std::move(data_vec), value_type, *address_ + offset};
-        return {std::move(data_vec), value_type};
+        auto data_vec = proc.read_memory(
+            address, element_size);
+        return { std::move(data_vec), value_type, address };
+    }
+    else {
+        std::vector<std::byte> data_vec{
+            data_.begin() + offset,
+            data_.begin() + offset + element_size };
+        if (address_) {
+            return { std::move(data_vec), value_type, *address_ + offset };
+        }
+        return { std::move(data_vec), value_type };
     }
 }
 
