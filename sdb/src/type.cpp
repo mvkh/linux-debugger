@@ -139,25 +139,56 @@ namespace
         }
     }
 
-    sdb::parameter_class merge_parameter_classes(sdb::parameter_class lhs, sdb::parameter_class rhs)
-    {
-        using namespace sdb;
+    // sdb::parameter_class merge_parameter_classes(sdb::parameter_class lhs, sdb::parameter_class rhs)
+    // {
+    //     using namespace sdb;
 
+    //     if (lhs == rhs) return lhs;
+
+    //     if (lhs == parameter_class::no_class) return rhs;
+    //     if (rhs == parameter_class::no_class) return lhs;
+
+    //     if ((lhs == parameter_class::memory) || (rhs == parameter_class::memory)) return parameter_class::memory;
+
+    //     if ((lhs == parameter_class::integer) || (rhs == parameter_class::integer)) return parameter_class::integer;
+
+    //     if ((lhs == parameter_class::x87) || (lhs == parameter_class::x87up) || (lhs == parameter_class::complex_x87) ||
+    //         (rhs == parameter_class::x87) || (rhs == parameter_class::x87up) || (rhs == parameter_class::complex_x87))
+    //         return parameter_class::memory;
+
+    //     return parameter_class::sse;
+    // }
+
+    sdb::parameter_class merge_parameter_classes(
+        sdb::parameter_class lhs, sdb::parameter_class rhs) {
+        using namespace sdb;
         if (lhs == rhs) return lhs;
 
         if (lhs == parameter_class::no_class) return rhs;
         if (rhs == parameter_class::no_class) return lhs;
 
-        if ((lhs == parameter_class::memory) || (rhs == parameter_class::memory)) return parameter_class::memory;
-
-        if ((lhs == parameter_class::integer) || (rhs == parameter_class::integer)) return parameter_class::integer;
-
-        if ((lhs == parameter_class::x87) || (lhs == parameter_class::x87up) || (lhs == parameter_class::complex_x87) ||
-            (rhs == parameter_class::x87) || (rhs == parameter_class::x87up) || (rhs == parameter_class::complex_x87))
+        if (lhs == parameter_class::memory or
+            rhs == parameter_class::memory) {
             return parameter_class::memory;
+        }
+
+        if (lhs == parameter_class::integer or
+            rhs == parameter_class::integer) {
+            return parameter_class::integer;
+        }
+
+        if (lhs == parameter_class::x87 or
+            rhs == parameter_class::x87 or
+            lhs == parameter_class::x87up or
+            rhs == parameter_class::x87up or
+            lhs == parameter_class::complex_x87 or
+            rhs == parameter_class::complex_x87) {
+            return parameter_class::memory;
+        }
 
         return parameter_class::sse;
     }
+
 
     void classify_class_field(const sdb::type& type, const sdb::die& field, std::array<sdb::parameter_class, 2>& classes, int bit_offset)
     {
