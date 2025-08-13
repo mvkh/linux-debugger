@@ -128,7 +128,7 @@ namespace
 
                 } while ((byte & 0x80) != 0);
 
-                if ((shift < sizeof(res) * 8) and (byte & 0x40))
+                if ((shift < sizeof(res) * 8) && (byte & 0x40))
                 {
                     res |= (~static_cast<std::uint64_t>(0) << shift);
                 }
@@ -437,7 +437,7 @@ namespace
         if (!((version == 1) || (version == 3) || (version == 4))) sdb::error::send("Invalid CIE version");
 
         auto augmentation = cur.string();
-        if ((!augmentation.empty()) and (augmentation[0] != 'z')) sdb::error::send("Invalid CIE augmentation");
+        if ((!augmentation.empty()) && (augmentation[0] != 'z')) sdb::error::send("Invalid CIE augmentation");
 
         if (version == 4)
         {
@@ -834,7 +834,7 @@ bool sdb::die::children_range::iterator::operator==(const sdb::die::children_ran
     if (lhs_null and rhs_null) return true;
     if (lhs_null or rhs_null) return false;
 
-    return ((die_->abbrev_ == rhs->abbrev_) and (die_->next() == rhs->next()));
+    return ((die_->abbrev_ == rhs->abbrev_) && (die_->next() == rhs->next()));
 }
 
 sdb::die::children_range::iterator& sdb::die::children_range::iterator::operator++()
@@ -969,7 +969,7 @@ sdb::die sdb::attr::as_reference() const
             auto section = cu_->dwarf_info()->elf_file()->get_section_contents(".debug_info");
             auto die_pos = section.begin() + offset;
             auto& cus = cu_->dwarf_info()->compile_units();
-            auto cu_finder = [=](auto& cu) { return ((cu->data().begin() <= die_pos) and (cu->data().end() > die_pos)); };
+            auto cu_finder = [=](auto& cu) { return ((cu->data().begin() <= die_pos) && (cu->data().end() > die_pos)); };
             auto cu_for_offset = std::find_if(begin(cus), end(cus), cu_finder);
             cursor ref_cur({die_pos, cu_for_offset->get()->data().end()});
             return parse_die(**cu_for_offset, ref_cur);
@@ -1064,7 +1064,7 @@ sdb::range_list::iterator& sdb::range_list::iterator::operator++()
         {
             base_address_ = current_.high;
 
-        } else if ((current_.low.addr() == 0) and (current_.high.addr() == 0)) {
+        } else if ((current_.low.addr() == 0) && (current_.high.addr() == 0)) {
 
             pos_ = nullptr;
             break;
@@ -1125,7 +1125,7 @@ bool sdb::die::contains_address(file_addr address) const
 
     } else if (contains(DW_AT_low_pc)) {
 
-        return ((low_pc() <= address) and (high_pc() > address));
+        return ((low_pc() <= address) && (high_pc() > address));
     }
 
     return false;
@@ -1148,7 +1148,7 @@ std::optional<sdb::die> sdb::dwarf::function_containing_address(file_addr addres
     {
         cursor cur({entry.pos, entry.cu->data().end()});
         auto d = parse_die(*entry.cu, cur);
-        if (d.contains_address(address) and (d.abbrev_entry()->tag == DW_TAG_subprogram)) return d;
+        if (d.contains_address(address) && (d.abbrev_entry()->tag == DW_TAG_subprogram)) return d;
     }
 
     return std::nullopt;
@@ -1298,7 +1298,7 @@ bool sdb::line_table::iterator::execute_instruction()
     auto opcode = cur.u8();
     bool emitted = false;
 
-    if ((opcode > 0) and (opcode < table_->opcode_base_))
+    if ((opcode > 0) && (opcode < table_->opcode_base_))
     {
         switch (opcode)
         {
@@ -1391,7 +1391,7 @@ sdb::line_table::iterator sdb::line_table::get_entry_by_address(file_addr addres
     if (prev == end()) return prev;
 
     auto it = prev;
-    for (++it; it != end(); prev = it++) if ((prev->address <= address) and (it->address > address) and (!prev->end_sequence)) return prev;
+    for (++it; it != end(); prev = it++) if ((prev->address <= address) && (it->address > address) && (!prev->end_sequence)) return prev;
 
     return end();
 }
@@ -1403,7 +1403,7 @@ std::vector<sdb::line_table::iterator> sdb::line_table::get_entries_by_line(std:
     for (auto it = begin(); it != end(); ++it)
     {
         auto& entry_path = it->file_entry->path;
-        if ((it->line == line) and ((path.is_absolute() and (entry_path == path)) or (path.is_relative() and path_ends_in(entry_path, path)))) 
+        if ((it->line == line) && ((path.is_absolute() && (entry_path == path)) || (path.is_relative() && path_ends_in(entry_path, path)))) 
             entries.push_back(it);
     }
 
@@ -1524,7 +1524,7 @@ sdb::registers sdb::call_frame_information::unwind(const process& proc, file_add
     ctx.cur = cursor(fde.instructions);
     ctx.location = fde.initial_location;
 
-    while ((!ctx.cur.finished()) and (ctx.location <= pc)) execute_cfi_instruction(*dwarf_->elf_file(), fde, ctx, pc);
+    while ((!ctx.cur.finished()) && (ctx.location <= pc)) execute_cfi_instruction(*dwarf_->elf_file(), fde, ctx, pc);
 
     return execute_unwind_rules(ctx, regs, proc);
 }
@@ -1836,7 +1836,7 @@ sdb::dwarf_expression::result sdb::location_list::eval(const sdb::process& proc,
     auto first = cur.u64();
     auto second = cur.u64();
 
-    while (!((first == 0) and (second == 0)))
+    while (!((first == 0) && (second == 0)))
     {
         if (first == base_address_flag) 
         {

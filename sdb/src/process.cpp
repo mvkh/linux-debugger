@@ -170,7 +170,7 @@ std::unique_ptr<sdb::process> sdb::process::launch(std::filesystem::path path, b
             }
         }
 
-        if (debug and (ptrace(PTRACE_TRACEME, 0, nullptr, nullptr) < 0))
+        if (debug && (ptrace(PTRACE_TRACEME, 0, nullptr, nullptr) < 0))
         {
             exit_with_perror(channel, "Tracing failed");
         }
@@ -401,7 +401,7 @@ std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, 
 
     if (reason.trap_reason && (*reason.trap_reason == trap_type::clone) && is_main_stop) return std::nullopt;
 
-    if (is_attached_ and (reason.reason == process_state::stopped))
+    if (is_attached_ && (reason.reason == process_state::stopped))
     {
         if (!threads_.count(tid))
         {
@@ -410,7 +410,7 @@ std::optional<sdb::stop_reason> sdb::process::handle_signal(stop_reason reason, 
             if (is_main_stop) return std::nullopt;
         }
 
-        if (threads_.at(tid).pending_sigstop and (reason.info == SIGSTOP))
+        if (threads_.at(tid).pending_sigstop && (reason.info == SIGSTOP))
         {
             threads_.at(tid).pending_sigstop = false;
             return std::nullopt;
@@ -818,7 +818,7 @@ sdb::registers sdb::process::inferior_call(virt_addr func_addr, virt_addr return
     auto tid = otid.value_or(current_thread_);
     auto& regs = get_registers(tid);
     regs.write_by_id(sdb::register_id::rip, func_addr.addr(), true);
-    
+
     auto rsp = regs.read_by_id_as<std::uint64_t>(sdb::register_id::rsp);
     rsp -= 8;
     write_memory(sdb::virt_addr{rsp}, to_byte_span(return_addr.addr()));
