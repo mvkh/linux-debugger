@@ -553,79 +553,23 @@ bool sdb::type::is_non_trivial_for_calls() const
     return false;
 }
 
-// std::array<sdb::parameter_class, 2> sdb::type::get_parameter_classes() const
-// {
-//     std::array<sdb::parameter_class, 2> classes = {parameter_class::no_class, parameter_class::no_class};
+std::array<sdb::parameter_class, 2> sdb::type::get_parameter_classes() const
+{
+    std::array<sdb::parameter_class, 2> classes = {parameter_class::no_class, parameter_class::no_class};
 
-//     if (!is_from_dwarf())
-//     {
-//         switch (get_builtin_type())
-//         {
-//             case builtin_type::boolean: classes[0] = parameter_class::integer; break;
+    if (!is_from_dwarf())
+    {
+        switch (get_builtin_type())
+        {
+            case builtin_type::boolean: classes[0] = parameter_class::integer; break;
 
-//             case builtin_type::character: classes[0] = parameter_class::integer; break;
+            case builtin_type::character: classes[0] = parameter_class::integer; break;
 
-//             case builtin_type::integer: classes[0] = parameter_class::integer; break;
+            case builtin_type::integer: classes[0] = parameter_class::integer; break;
 
-//             case builtin_type::floating_point: classes[0] = parameter_class::sse; break;
+            case builtin_type::floating_point: classes[0] = parameter_class::sse; break;
 
-//             case builtin_type::string: classes[0] = parameter_class::integer; break;
-//         }
-//         return classes;
-//     }
-
-//     auto stripped = strip_cv_typedef();
-//     auto die = stripped.get_die();
-//     auto tag = die.abbrev_entry()->tag;
-
-//     if ((tag == DW_TAG_base_type) && (stripped.byte_size() <= 8))
-//     {
-//         switch (die[DW_AT_encoding].as_int())
-//         {
-//             case DW_ATE_boolean: classes[0] = parameter_class::integer; break;
-
-//             case DW_ATE_float: classes[0] = parameter_class::sse; break;
-
-//             case DW_ATE_signed: classes[0] = parameter_class::integer; break;
-
-//             case DW_ATE_signed_char: classes[0] = parameter_class::integer; break;
-
-//             case DW_ATE_unsigned: classes[0] = parameter_class::integer; break;
-
-//             case DW_ATE_unsigned_char: classes[0] = parameter_class::integer; break;
-
-//             default: sdb::error::send("Unimplemented base type encoding");
-//         }
-
-//     } else if ((tag == DW_TAG_pointer_type) || (tag == DW_TAG_reference_type) || (tag == DW_TAG_rvalue_reference_type)) {
-
-//         classes[0] = parameter_class::integer;
-
-//     } else if ((tag == DW_TAG_base_type) && (die[DW_AT_encoding].as_int() == DW_ATE_float) && (stripped.byte_size() == 16)) {
-
-//         classes[0] = parameter_class::x87;
-//         classes[1] = parameter_class::x87up;
-
-//     } else if ((tag == DW_TAG_class_type) || (tag == DW_TAG_structure_type) || (tag == DW_TAG_union_type) || (tag == DW_TAG_array_type)) {
-
-//         classes = classify_class_type(*this);
-//     }
-
-//     return classes;
-// }
-
-std::array<sdb::parameter_class, 2> sdb::type::get_parameter_classes() const {
-    std::array<parameter_class, 2> classes = {
-        parameter_class::no_class, parameter_class::no_class };
-
-    if (!is_from_dwarf()) {
-        std::cerr << "Not from DWARF!\n"; 
-        switch (get_builtin_type()) {
-        case builtin_type::boolean: classes[0] = parameter_class::integer; break;
-        case builtin_type::character: classes[0] = parameter_class::integer; break;
-        case builtin_type::integer: classes[0] = parameter_class::integer; break;
-        case builtin_type::floating_point: classes[0] = parameter_class::sse; break;
-        case builtin_type::string: classes[0] = parameter_class::integer; break;
+            case builtin_type::string: classes[0] = parameter_class::integer; break;
         }
         return classes;
     }
@@ -633,38 +577,40 @@ std::array<sdb::parameter_class, 2> sdb::type::get_parameter_classes() const {
     auto stripped = strip_cv_typedef();
     auto die = stripped.get_die();
     auto tag = die.abbrev_entry()->tag;
-    if (tag == DW_TAG_base_type and stripped.byte_size() <= 8) {
-        std::cerr << "DW_TAG_base_type, byte_size <=8\n";
-        switch (die[DW_AT_encoding].as_int()) {
-        case DW_ATE_boolean: classes[0] = parameter_class::integer; break;
-        case DW_ATE_float: classes[0] = parameter_class::sse; break;
-        case DW_ATE_signed: classes[0] = parameter_class::integer; break;
-        case DW_ATE_signed_char: classes[0] = parameter_class::integer; break;
-        case DW_ATE_unsigned: classes[0] = parameter_class::integer; break;
-        case DW_ATE_unsigned_char: classes[0] = parameter_class::integer; break;
-        default: sdb::error::send("Unimplemented base type encoding");
+
+    if ((tag == DW_TAG_base_type) && (stripped.byte_size() <= 8))
+    {
+        switch (die[DW_AT_encoding].as_int())
+        {
+            case DW_ATE_boolean: classes[0] = parameter_class::integer; break;
+
+            case DW_ATE_float: classes[0] = parameter_class::sse; break;
+
+            case DW_ATE_signed: classes[0] = parameter_class::integer; break;
+
+            case DW_ATE_signed_char: classes[0] = parameter_class::integer; break;
+
+            case DW_ATE_unsigned: classes[0] = parameter_class::integer; break;
+
+            case DW_ATE_unsigned_char: classes[0] = parameter_class::integer; break;
+
+            default: sdb::error::send("Unimplemented base type encoding");
         }
-    }
-    else if (tag == DW_TAG_pointer_type or
-        tag == DW_TAG_reference_type or
-        tag == DW_TAG_rvalue_reference_type) {
-        std::cerr << "Some sort of pointer\n";
+
+    } else if ((tag == DW_TAG_pointer_type) || (tag == DW_TAG_reference_type) || (tag == DW_TAG_rvalue_reference_type)) {
+
         classes[0] = parameter_class::integer;
-    }
-    else if (tag == DW_TAG_base_type and
-        die[DW_AT_encoding].as_int() == DW_ATE_float and
-        stripped.byte_size() == 16) {
-        std::cerr << "Some sort of float\n";
+
+    } else if ((tag == DW_TAG_base_type) && (die[DW_AT_encoding].as_int() == DW_ATE_float) && (stripped.byte_size() == 16)) {
+
         classes[0] = parameter_class::x87;
         classes[1] = parameter_class::x87up;
-    }
-    else if (tag == DW_TAG_class_type or
-        tag == DW_TAG_structure_type or
-        tag == DW_TAG_union_type or
-        tag == DW_TAG_array_type) {
-        std::cerr << "Some sort of class";
+
+    } else if ((tag == DW_TAG_class_type) || (tag == DW_TAG_structure_type) || (tag == DW_TAG_union_type) || (tag == DW_TAG_array_type)) {
+
         classes = classify_class_type(*this);
     }
+
     return classes;
 }
 

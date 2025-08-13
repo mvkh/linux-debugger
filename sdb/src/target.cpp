@@ -180,111 +180,240 @@ namespace
         return *matching_func;
     }
 
-    void setup_arguments(sdb::target& target, sdb::die func, std::vector<sdb::typed_data> args,
-        sdb::registers& regs, std::optional<sdb::virt_addr> return_slot)
-    {
-        std::array<sdb::register_id, 6> int_regs = {sdb::register_id::rdi, sdb::register_id::rsi, sdb::register_id::rdx,
-            sdb::register_id::rcx, sdb::register_id::r8, sdb::register_id::r9};
+    // void setup_arguments(sdb::target& target, sdb::die func, std::vector<sdb::typed_data> args,
+    //     sdb::registers& regs, std::optional<sdb::virt_addr> return_slot)
+    // {
+    //     std::array<sdb::register_id, 6> int_regs = {sdb::register_id::rdi, sdb::register_id::rsi, sdb::register_id::rdx,
+    //         sdb::register_id::rcx, sdb::register_id::r8, sdb::register_id::r9};
 
-        std::array<sdb::register_id, 8> sse_regs = {sdb::register_id::xmm0, sdb::register_id::xmm1, sdb::register_id::xmm2,
-            sdb::register_id::xmm3, sdb::register_id::xmm4, sdb::register_id::xmm5, sdb::register_id::xmm6, sdb::register_id::xmm7};
+    //     std::array<sdb::register_id, 8> sse_regs = {sdb::register_id::xmm0, sdb::register_id::xmm1, sdb::register_id::xmm2,
+    //         sdb::register_id::xmm3, sdb::register_id::xmm4, sdb::register_id::xmm5, sdb::register_id::xmm6, sdb::register_id::xmm7};
+
+    //     auto current_int_reg = 0;
+    //     auto current_sse_reg = 0;
+
+    //     struct stack_arg
+    //     {
+    //         sdb::typed_data data;
+    //         std::size_t size;
+    //     };
+
+    //     auto stack_args = std::vector<stack_arg>{};
+    //     auto rsp = regs.read_by_id_as<std::uint64_t>(sdb::register_id::rsp);
+
+    //     auto round_up_to_eightbyte = [](std::size_t size) { return ((size + 7) & ~7); };
+
+    //     if (func.contains(DW_AT_type))
+    //     {
+    //         auto ret_type = func[DW_AT_type].as_type();
+    //         auto ret_class = ret_type.get_parameter_classes()[0];
+    //         if (ret_class == sdb::parameter_class::memory)
+    //         {
+    //             current_int_reg++;
+    //             regs.write_by_id(int_regs[0], return_slot->addr(), true);
+    //         }
+    //     }
+
+    //     auto params = func.parameter_types();
+    //     for (auto i = 0; i < params.size(); ++i)
+    //     {
+    //         auto& param = params[i];
+    //         auto param_classes = param.get_parameter_classes();
+
+    //         if (param.is_reference_type())
+    //         {
+    //             if (args[i].address()) 
+    //             {
+    //                 args[i] = sdb::typed_data{sdb::to_byte_vec(*args[i].address()), sdb::builtin_type::integer};
+
+    //             } else {
+
+    //                 rsp -= args[i].value_type().byte_size();
+    //                 rsp &= ~(args[i].value_type().alignment() - 1);
+    //                 target.get_process().write_memory(sdb::virt_addr{rsp}, args[i].data());
+    //                 args[i] = sdb::typed_data{sdb::to_byte_vec(rsp), sdb::builtin_type::integer};
+    //             }
+    //         }
+    //     }
+
+    //     for (auto i = 0; i < params.size(); ++i)
+    //     {
+    //         auto& arg = args[i];
+    //         auto& param = params[i];
+    //         auto param_classes = params[i].get_parameter_classes();
+    //         auto param_size = param.byte_size();
+
+    //         auto required_int_regs = std::count(param_classes.begin(), param_classes.end(), sdb::parameter_class::integer);
+    //         auto required_sse_regs = std::count(param_classes.begin(), param_classes.end(), sdb::parameter_class::sse);
+
+    //         if ((current_int_reg + required_int_regs > int_regs.size()) || (current_sse_reg + required_sse_regs > sse_regs.size()) ||
+    //             ((required_int_regs == 0) && (required_sse_regs == 0)))
+    //         {
+    //             auto size = round_up_to_eightbyte(param_size);
+    //             stack_args.push_back({args[i], size});
+
+    //         } else {
+
+    //             for (auto i = 0; i < param_size; i += 8)
+    //             {
+    //                 sdb::register_id reg;
+    //                 switch (param_classes[i / 8])
+    //                 {
+    //                     case sdb::parameter_class::integer: reg = int_regs[current_int_reg++]; break;
+
+    //                     case sdb::parameter_class::sse: reg = sse_regs[current_sse_reg++]; break;
+
+    //                     case sdb::parameter_class::no_class: break;
+
+    //                     default: sdb::error::send("Unsupported parameter class");
+    //                 }
+
+    //                 sdb::byte64 data;
+    //                 std::copy(arg.data().begin() + i, arg.data().begin() + i + 8, data.begin());
+    //                 regs.write_by_id(reg, data, true);
+    //             }
+    //         }
+    //     }
+
+    //     for (auto& [_, size]: stack_args) rsp -= size;
+    //     rsp &= ~0xf;
+
+    //     auto start_pos = rsp;
+    //     for (auto& [arg, size]: stack_args)
+    //     {
+    //         target.get_process().write_memory(sdb::virt_addr{start_pos}, arg.data());
+    //         start_pos += size;
+    //     }
+
+    //     regs.write_by_id(sdb::register_id::rax, current_sse_reg, true);
+    //     regs.write_by_id(sdb::register_id::rsp, rsp, true);
+    // }
+
+    void setup_arguments(
+        sdb::target& target, sdb::die func,
+        std::vector<sdb::typed_data> args,
+        sdb::registers& regs,
+        std::optional<sdb::virt_addr> return_slot) {
+        std::array<sdb::register_id, 6> int_regs = {
+            sdb::register_id::rdi,
+            sdb::register_id::rsi,
+            sdb::register_id::rdx,
+            sdb::register_id::rcx,
+            sdb::register_id::r8,
+            sdb::register_id::r9
+        };
+
+        std::array<sdb::register_id, 8> sse_regs = {
+            sdb::register_id::xmm0,
+            sdb::register_id::xmm1,
+            sdb::register_id::xmm2,
+            sdb::register_id::xmm3,
+            sdb::register_id::xmm4,
+            sdb::register_id::xmm5,
+            sdb::register_id::xmm6,
+            sdb::register_id::xmm7
+        };
 
         auto current_int_reg = 0;
         auto current_sse_reg = 0;
-
-        struct stack_arg
-        {
+        struct stack_arg {
             sdb::typed_data data;
             std::size_t size;
         };
-
         auto stack_args = std::vector<stack_arg>{};
         auto rsp = regs.read_by_id_as<std::uint64_t>(sdb::register_id::rsp);
 
-        auto round_up_to_eightbyte = [](std::size_t size) { return ((size + 7) & ~7); };
+        auto round_up_to_eightbyte = [](std::size_t size) {
+            return (size + 7) & ~7;
+            };
 
-        if (func.contains(DW_AT_type))
-        {
+        if (func.contains(DW_AT_type)) {
             auto ret_type = func[DW_AT_type].as_type();
             auto ret_class = ret_type.get_parameter_classes()[0];
-            if (ret_class == sdb::parameter_class::memory)
-            {
+            if (ret_class == sdb::parameter_class::memory) {
                 current_int_reg++;
                 regs.write_by_id(int_regs[0], return_slot->addr(), true);
             }
         }
 
         auto params = func.parameter_types();
-        for (auto i = 0; i < params.size(); ++i)
-        {
+        for (auto i = 0; i < params.size(); ++i) {
             auto& param = params[i];
             auto param_classes = param.get_parameter_classes();
 
-            if (param.is_reference_type())
-            {
-                if (args[i].address()) 
-                {
-                    args[i] = sdb::typed_data{sdb::to_byte_vec(*args[i].address()), sdb::builtin_type::integer};
-
-                } else {
-
+            if (param.is_reference_type()) {
+                if (args[i].address()) {
+                    args[i] = sdb::typed_data{
+                        sdb::to_byte_vec(*args[i].address()),
+                        sdb::builtin_type::integer };
+                }
+                else {
                     rsp -= args[i].value_type().byte_size();
                     rsp &= ~(args[i].value_type().alignment() - 1);
-                    target.get_process().write_memory(sdb::virt_addr{rsp}, args[i].data());
-                    args[i] = sdb::typed_data{sdb::to_byte_vec(rsp), sdb::builtin_type::integer};
+                    target.get_process().write_memory(
+                        sdb::virt_addr{ rsp }, args[i].data());
+                    args[i] = sdb::typed_data{
+                        sdb::to_byte_vec(rsp),
+                        sdb::builtin_type::integer };
                 }
             }
         }
 
-        for (auto i = 0; i < params.size(); ++i)
-        {
+        for (auto i = 0; i < params.size(); ++i) {
             auto& arg = args[i];
             auto& param = params[i];
             auto param_classes = params[i].get_parameter_classes();
             auto param_size = param.byte_size();
 
-            auto required_int_regs = std::count(param_classes.begin(), param_classes.end(), sdb::parameter_class::integer);
-            auto required_sse_regs = std::count(param_classes.begin(), param_classes.end(), sdb::parameter_class::sse);
+            auto required_int_regs = std::count(
+                param_classes.begin(), param_classes.end(),
+                sdb::parameter_class::integer);
+            auto required_sse_regs = std::count(
+                param_classes.begin(), param_classes.end(),
+                sdb::parameter_class::sse);
 
-            if ((current_int_reg + required_int_regs > int_regs.size()) || (current_sse_reg + required_sse_regs > sse_regs.size()) ||
-                ((required_int_regs == 0) && (required_sse_regs == 0)))
-            {
+            if (current_int_reg + required_int_regs > int_regs.size() or
+                current_sse_reg + required_sse_regs > sse_regs.size() or
+                (required_int_regs == 0 and required_sse_regs == 0)) {
                 auto size = round_up_to_eightbyte(param_size);
-                stack_args.push_back({args[i], size});
-
-            } else {
-
-                for (auto i = 0; i < param_size; i += 8)
-                {
+                stack_args.push_back({ args[i], size });
+            }
+            else {
+                for (auto i = 0; i < param_size; i += 8) {
                     sdb::register_id reg;
-                    switch (param_classes[i / 8])
-                    {
-                        case sdb::parameter_class::integer: reg = int_regs[current_int_reg++]; break;
-
-                        case sdb::parameter_class::sse: reg = sse_regs[current_sse_reg++]; break;
-
-                        case sdb::parameter_class::no_class: break;
-
-                        default: sdb::error::send("Unsupported parameter class");
+                    switch (param_classes[i / 8]) {
+                    case sdb::parameter_class::integer:
+                        reg = int_regs[current_int_reg++];
+                        break;
+                    case sdb::parameter_class::sse:
+                        reg = sse_regs[current_sse_reg++];
+                        break;
+                    case sdb::parameter_class::no_class:
+                        break;
+                    default:
+                        sdb::error::send("Unsupported parameter class");
                     }
 
                     sdb::byte64 data;
-                    std::copy(arg.data().begin() + i, arg.data().begin() + i + 8, data.begin());
+                    std::copy(
+                        arg.data().begin() + i,
+                        arg.data().begin() + i + 8,
+                        data.begin());
                     regs.write_by_id(reg, data, true);
                 }
             }
         }
-
-        for (auto& [_, size]: stack_args) rsp -= size;
+        for (auto& [_, size] : stack_args) {
+            rsp -= size;
+        }
         rsp &= ~0xf;
 
         auto start_pos = rsp;
-        for (auto& [arg, size]: stack_args)
-        {
-            target.get_process().write_memory(sdb::virt_addr{start_pos}, arg.data());
+        for (auto& [arg, size] : stack_args) {
+            target.get_process().write_memory(
+                sdb::virt_addr{ start_pos }, arg.data());
             start_pos += size;
         }
-
         regs.write_by_id(sdb::register_id::rax, current_sse_reg, true);
         regs.write_by_id(sdb::register_id::rsp, rsp, true);
     }
