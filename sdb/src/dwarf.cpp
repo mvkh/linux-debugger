@@ -1194,9 +1194,9 @@ std::optional<std::string_view> sdb::die::name() const
 
 void sdb::dwarf::index_die(const die& current, bool in_function) const
 {
-    bool has_range = current.contains(DW_AT_low_pc) or current.contains(DW_AT_ranges);
+    bool has_range = current.contains(DW_AT_low_pc) || current.contains(DW_AT_ranges);
     bool is_function = (current.abbrev_entry()->tag == DW_TAG_subprogram) or (current.abbrev_entry()->tag == DW_TAG_inlined_subroutine);
-    if (has_range and is_function)
+    if (has_range && is_function)
     {
         if (auto name = current.name(); name)
         {
@@ -1970,7 +1970,7 @@ std::optional<sdb::die> sdb::dwarf::get_member_function_definition(const die& de
     {
         cursor cur({it->second.pos, it->second.cu->data().end()});
         auto die = parse_die(*it->second.cu, cur);
-        if (die.contains(DW_AT_low_pc) or die.contains(DW_AT_ranges)) return die;
+        if (die.contains(DW_AT_low_pc) || die.contains(DW_AT_ranges)) return die;
         return get_member_function_definition(die);
     }
 

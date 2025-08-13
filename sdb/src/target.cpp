@@ -800,7 +800,7 @@ sdb::target::resolve_indirect_name_result sdb::target::resolve_indirect_name(std
     }
 
     auto var_name = name.substr(0, op_pos);
-
+    auto& dwarf = pc.elf_file()->get_dwarf();
     auto data = get_initial_variable_data(*this, var_name, pc);
 
     while(op_pos != std::string::npos)

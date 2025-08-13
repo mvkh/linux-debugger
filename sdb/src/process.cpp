@@ -818,6 +818,7 @@ sdb::registers sdb::process::inferior_call(virt_addr func_addr, virt_addr return
     auto tid = otid.value_or(current_thread_);
     auto& regs = get_registers(tid);
     regs.write_by_id(sdb::register_id::rip, func_addr.addr(), true);
+    
     auto rsp = regs.read_by_id_as<std::uint64_t>(sdb::register_id::rsp);
     rsp -= 8;
     write_memory(sdb::virt_addr{rsp}, to_byte_span(return_addr.addr()));

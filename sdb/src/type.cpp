@@ -171,7 +171,7 @@ namespace
         {
             for (auto child: field_type.get_die().children())
                 if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                    (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
+                    child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
                     classify_class_field(type, child, classes, current_bit_offset);
 
         } else {
@@ -201,7 +201,7 @@ namespace
 
             for (auto child: type.get_die().children())
                 if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                    (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
+                    child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
                     classify_class_field(type, child, classes, 0);
         }
 
@@ -467,7 +467,7 @@ bool sdb::type::operator==(const type& rhs) const
     auto rhs_stripped = rhs.strip_all();
     auto lhs_name = lhs_stripped.get_die().name();
     auto rhs_name = rhs_stripped.get_die().name();
-    return (lhs_name && rhs_name && (rhs_name == lhs_name));
+    return (lhs_name && rhs_name && (*rhs_name == *lhs_name));
 }
 
 std::size_t sdb::type::alignment() const
@@ -480,7 +480,7 @@ std::size_t sdb::type::alignment() const
         for (auto child: get_die().children())
         {
             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
+                child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
             {
                 auto member_type = child[DW_AT_type].as_type();
                 if (member_type.alignment() > max_alignment) max_alignment = member_type.alignment();
@@ -520,7 +520,7 @@ bool sdb::type::is_non_trivial_for_calls() const
         for (auto& child: stripped.children())
         {
             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                (child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset)))
+                child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
                 if (child[DW_AT_type].as_type().is_non_trivial_for_calls())
                     return true;
 
