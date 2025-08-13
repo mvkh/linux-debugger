@@ -494,21 +494,43 @@ std::size_t sdb::type::alignment() const
     return byte_size();
 }
 
-bool sdb::type::has_unaligned_fields() const
-{
-    if (!is_from_dwarf()) return false;
+// bool sdb::type::has_unaligned_fields() const
+// {
+//     if (!is_from_dwarf()) return false;
 
-    if (is_class_type())
-    {
-        for (auto child: get_die().children())
-            if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
-            {
-                auto member_type = child[DW_AT_type].as_type();
-                if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
-                if (member_type.has_unaligned_fields()) return true;
-            }
+//     if (is_class_type())
+//     {
+//         for (auto child: get_die().children())
+//             if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
+//             {
+//                 auto member_type = child[DW_AT_type].as_type();
+//                 if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
+//                 if (member_type.has_unaligned_fields()) return true;
+//             }
+//     }
+
+//     return false;
+// }
+
+bool sdb::type::has_unaligned_fields() const {
+    if (!is_from_dwarf()) {
+        return false;
     }
-
+    if (is_class_type()) {
+        for (auto child : get_die().children()) {
+            if (child.abbrev_entry()->tag == DW_TAG_member and
+                child.contains(DW_AT_data_member_location)) {
+                auto member_type = child[DW_AT_type].as_type();
+                if (child[DW_AT_data_member_location].as_int() %
+                    member_type.alignment() != 0) {
+                    return true;
+                }
+                if (member_type.has_unaligned_fields()) {
+                    return true;
+                }
+            }
+        }
+    }
     return false;
 }
 
