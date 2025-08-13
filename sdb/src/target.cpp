@@ -148,32 +148,64 @@ namespace
         return args;
     }
 
-    sdb::die resolve_overload(const std::vector<sdb::die>& funcs, const std::vector<sdb::typed_data>& args)
-    {
+    // sdb::die resolve_overload(const std::vector<sdb::die>& funcs, const std::vector<sdb::typed_data>& args)
+    // {
+    //     std::optional<sdb::die> matching_func;
+    //     for (auto& func: funcs)
+    //     {
+    //         bool matches = true;
+    //         auto arg_it = args.begin();
+    //         auto params = func.parameter_types();
+
+    //         if (args.size() == params.size())
+    //             for (auto param_it = params.begin(); arg_it != args.end(); ++param_it, ++arg_it)
+    //                 if (*param_it != arg_it->value_type())
+    //                 {
+    //                     matches = false;
+    //                     break;
+    //                 }
+    //         else
+    //             matches = false;
+
+    //         if (matches)
+    //         {
+    //             if (matching_func) sdb::error::send("Ambiguous function call");
+    //             matching_func = func;
+    //         }
+    //     }
+
+    //     if (!matching_func) sdb::error::send("No matching function");
+    //     return *matching_func;
+    // }
+
+    sdb::die resolve_overload(
+        const std::vector<sdb::die>& funcs,
+        const std::vector<sdb::typed_data>& args) {
         std::optional<sdb::die> matching_func;
-        for (auto& func: funcs)
-        {
+        for (auto& func : funcs) {
             bool matches = true;
             auto arg_it = args.begin();
             auto params = func.parameter_types();
 
-            if (args.size() == params.size())
-                for (auto param_it = params.begin(); arg_it != args.end(); ++param_it, ++arg_it)
-                    if (*param_it != arg_it->value_type())
-                    {
+            if (args.size() == params.size()) {
+                for (auto param_it = params.begin();
+                    arg_it != args.end();
+                    ++param_it, ++arg_it) {
+                    if (*param_it != arg_it->value_type()) {
                         matches = false;
                         break;
                     }
-            else
+                }
+            }
+            else {
                 matches = false;
+            }
 
-            if (matches)
-            {
+            if (matches) {
                 if (matching_func) sdb::error::send("Ambiguous function call");
                 matching_func = func;
             }
         }
-
         if (!matching_func) sdb::error::send("No matching function");
         return *matching_func;
     }
