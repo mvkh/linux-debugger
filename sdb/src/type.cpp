@@ -182,82 +182,34 @@ namespace
         }
     }
 
-    // std::array<sdb::parameter_class, 2> classify_class_type(const sdb::type& type)
-    // {
-    //     if (type.is_non_trivial_for_calls()) sdb::error::send("NTFPOC types are not supported");
+    std::array<sdb::parameter_class, 2> classify_class_type(const sdb::type& type)
+    {
+        if (type.is_non_trivial_for_calls()) sdb::error::send("NTFPOC types are not supported");
 
-    //     if ((type.byte_size() > 16) || type.has_unaligned_fields()) 
-    //         return {sdb::parameter_class::memory, sdb::parameter_class::memory};
+        if ((type.byte_size() > 16) || type.has_unaligned_fields()) 
+            return {sdb::parameter_class::memory, sdb::parameter_class::memory};
 
-    //     std::array<sdb::parameter_class, 2> classes = {sdb::parameter_class::no_class, sdb::parameter_class::no_class};
+        std::array<sdb::parameter_class, 2> classes = {sdb::parameter_class::no_class, sdb::parameter_class::no_class};
 
-    //     if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type)
-    //     {
-    //         auto value_type = type.get_die()[DW_AT_type].as_type();
-    //         classes = value_type.get_parameter_classes();
-    //         if ((type.byte_size() > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
-
-    //     } else {
-
-    //         for (auto child: type.get_die().children())
-    //             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-    //                 child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
-    //                 classify_class_field(type, child, classes, 0);
-    //     }
-
-    //     if ((classes[0] == sdb::parameter_class::memory) || (classes[1] == sdb::parameter_class::memory))
-    //         classes[0] = classes[1] = sdb::parameter_class::memory;
-
-    //     if ((classes[1] == sdb::parameter_class::x87up) && (classes[0] != sdb::parameter_class::x87up))
-    //         classes[0] = classes[1] = sdb::parameter_class::memory;
-
-    //     return classes;
-    // }
-
-    std::array<sdb::parameter_class, 2> classify_class_type(
-        const sdb::type& type) {
-        if (type.is_non_trivial_for_calls()) {
-            sdb::error::send("NTFPOC types are not supported");
-        }
-
-        if (type.byte_size() > 16 or
-            type.has_unaligned_fields()) {
-            return {
-                sdb::parameter_class::memory,
-                sdb::parameter_class::memory
-            };
-        }
-
-        std::array<sdb::parameter_class, 2> classes = {
-            sdb::parameter_class::no_class,
-            sdb::parameter_class::no_class
-        };
-
-        if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type) {
+        if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type)
+        {
             auto value_type = type.get_die()[DW_AT_type].as_type();
             classes = value_type.get_parameter_classes();
-            if (type.byte_size() > 8 and classes[1] == sdb::parameter_class::no_class) {
-                classes[1] = classes[0];
-            }
-        }
-        else {
-            for (auto child : type.get_die().children()) {
-                if (child.abbrev_entry()->tag == DW_TAG_member and
-                    child.contains(DW_AT_data_member_location) or
-                    child.contains(DW_AT_data_bit_offset)) {
+            if ((type.byte_size() > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
+
+        } else {
+
+            for (auto child: type.get_die().children())
+                if ((child.abbrev_entry()->tag == DW_TAG_member) && 
+                    child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
                     classify_class_field(type, child, classes, 0);
-                }
-            }
         }
 
-        if (classes[0] == sdb::parameter_class::memory or
-            classes[1] == sdb::parameter_class::memory) {
+        if ((classes[0] == sdb::parameter_class::memory) || (classes[1] == sdb::parameter_class::memory))
             classes[0] = classes[1] = sdb::parameter_class::memory;
-        }
-        else if (classes[1] == sdb::parameter_class::x87up and
-            classes[0] != sdb::parameter_class::x87) {
+
+        if ((classes[1] == sdb::parameter_class::x87up) && (classes[0] != sdb::parameter_class::x87up))
             classes[0] = classes[1] = sdb::parameter_class::memory;
-        }
 
         return classes;
     }
@@ -542,21 +494,43 @@ std::size_t sdb::type::alignment() const
     return byte_size();
 }
 
-bool sdb::type::has_unaligned_fields() const
-{
-    if (!is_from_dwarf()) return false;
+// bool sdb::type::has_unaligned_fields() const
+// {
+//     if (!is_from_dwarf()) return false;
 
-    if (is_class_type())
-    {
-        for (auto child: get_die().children())
-            if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
-            {
-                auto member_type = child[DW_AT_type].as_type();
-                if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
-                if (member_type.has_unaligned_fields()) return true;
-            }
+//     if (is_class_type())
+//     {
+//         for (auto child: get_die().children())
+//             if ((child.abbrev_entry()->tag == DW_TAG_member) && child.contains(DW_AT_data_member_location))
+//             {
+//                 auto member_type = child[DW_AT_type].as_type();
+//                 if ((child[DW_AT_data_member_location].as_int() % member_type.alignment()) != 0) return true;
+//                 if (member_type.has_unaligned_fields()) return true;
+//             }
+//     }
+
+//     return false;
+// }
+
+bool sdb::type::has_unaligned_fields() const {
+    if (!is_from_dwarf()) {
+        return false;
     }
-
+    if (is_class_type()) {
+        for (auto child : get_die().children()) {
+            if (child.abbrev_entry()->tag == DW_TAG_member and
+                child.contains(DW_AT_data_member_location)) {
+                auto member_type = child[DW_AT_type].as_type();
+                if (child[DW_AT_data_member_location].as_int() %
+                    member_type.alignment() != 0) {
+                    return true;
+                }
+                if (member_type.has_unaligned_fields()) {
+                    return true;
+                }
+            }
+        }
+    }
     return false;
 }
 
