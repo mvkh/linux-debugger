@@ -183,124 +183,117 @@ namespace
         }
     }
 
-    // std::array<sdb::parameter_class, 2> classify_class_type(const sdb::type& type)
-    // {
-    //     if (type.is_non_trivial_for_calls()) sdb::error::send("NTFPOC types are not supported");
+    std::array<sdb::parameter_class, 2> classify_class_type(const sdb::type& type)
+    {
+        if (type.is_non_trivial_for_calls()) sdb::error::send("NTFPOC types are not supported");
 
-    //     if ((type.byte_size() > 16) || type.has_unaligned_fields()) 
-    //         return {sdb::parameter_class::memory, sdb::parameter_class::memory};
+        if ((type.byte_size() > 16) || type.has_unaligned_fields()) 
+            return {sdb::parameter_class::memory, sdb::parameter_class::memory};
 
-    //     std::array<sdb::parameter_class, 2> classes = {sdb::parameter_class::no_class, sdb::parameter_class::no_class};
+        std::array<sdb::parameter_class, 2> classes = {sdb::parameter_class::no_class, sdb::parameter_class::no_class};
 
-    //     if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type)
-    //     {
-    //         auto value_type = type.get_die()[DW_AT_type].as_type();
-    //         classes = value_type.get_parameter_classes();
-    //         if ((type.byte_size() > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
-
-    //     } else {
-
-    //         for (auto child: type.get_die().children())
-    //             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-    //                 child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
-    //                 classify_class_field(type, child, classes, 0);
-    //     }
-
-    //     if ((classes[0] == sdb::parameter_class::memory) || (classes[1] == sdb::parameter_class::memory))
-    //         classes[0] = classes[1] = sdb::parameter_class::memory;
-
-    //     if ((classes[1] == sdb::parameter_class::x87up) && (classes[0] != sdb::parameter_class::x87up))
-    //         classes[0] = classes[1] = sdb::parameter_class::memory;
-
-    //     return classes;
-    // }
-
-    std::array<sdb::parameter_class, 2> classify_class_type(
-        const sdb::type& type) {
-        if (type.is_non_trivial_for_calls()) {
-            sdb::error::send("NTFPOC types are not supported");
-        }
-
-        if (type.byte_size() > 16 or
-            type.has_unaligned_fields()) {
-            return {
-                sdb::parameter_class::memory,
-                sdb::parameter_class::memory
-            };
-        }
-
-        std::array<sdb::parameter_class, 2> classes = {
-            sdb::parameter_class::no_class,
-            sdb::parameter_class::no_class
-        };
-
-        if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type) {
+        if (type.get_die().abbrev_entry()->tag == DW_TAG_array_type)
+        {
             auto value_type = type.get_die()[DW_AT_type].as_type();
             classes = value_type.get_parameter_classes();
-            if (type.byte_size() > 8 and classes[1] == sdb::parameter_class::no_class) {
-                classes[1] = classes[0];
-            }
-        }
-        else {
-            for (auto child : type.get_die().children()) {
-                if (child.abbrev_entry()->tag == DW_TAG_member and
-                    child.contains(DW_AT_data_member_location) or
-                    child.contains(DW_AT_data_bit_offset)) {
+            if ((type.byte_size() > 8) && (classes[1] == sdb::parameter_class::no_class)) classes[1] = classes[0];
+
+        } else {
+
+            for (auto child: type.get_die().children())
+                if ((child.abbrev_entry()->tag == DW_TAG_member) && 
+                    child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
                     classify_class_field(type, child, classes, 0);
-                }
-            }
         }
 
-        if (classes[0] == sdb::parameter_class::memory or
-            classes[1] == sdb::parameter_class::memory) {
+        if ((classes[0] == sdb::parameter_class::memory) || (classes[1] == sdb::parameter_class::memory))
             classes[0] = classes[1] = sdb::parameter_class::memory;
-        }
-        else if (classes[1] == sdb::parameter_class::x87up and
-            classes[0] != sdb::parameter_class::x87) {
+
+        if ((classes[1] == sdb::parameter_class::x87up) && (classes[0] != sdb::parameter_class::x87up))
             classes[0] = classes[1] = sdb::parameter_class::memory;
-        }
 
         return classes;
     }
 
-    bool is_destructor(const sdb::die& func)
-    {
+    // bool is_destructor(const sdb::die& func)
+    // {
+    //     auto name = func.name();
+    //     return (name && (name.value().size() > 1) && (name.value()[0] == '~'));
+    // }
+
+    // bool is_copy_or_move_constructor(const sdb::type& class_type, const sdb::die& func)
+    // {
+    //     auto class_name = class_type.get_die().name();
+    //     if (class_name != func.name()) return false;
+
+    //     int i = 0;
+    //     for (auto child: func.children())
+    //     {
+    //         if (child.abbrev_entry()->tag == DW_TAG_formal_parameter)
+    //         {
+    //             if (i == 0)
+    //             {
+    //                 auto type = child[DW_AT_type].as_type();
+    //                 if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type) return false;
+    //                 if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type) return false;
+
+    //             } else if (i == 1) {
+
+    //                 auto type = child[DW_AT_type].as_type();
+    //                 auto tag = type.get_die().abbrev_entry()->tag;
+    //                 if ((tag != DW_TAG_reference_type) && (tag != DW_TAG_rvalue_reference_type)) return false;
+    //                 auto ref = type.get_die()[DW_AT_type].as_type().strip_cv_typedef();
+    //                 if (ref != class_type) return false;
+
+    //             } else {
+
+    //                 return false;
+    //             }
+    //         }
+    //         ++i;
+    //     }
+
+    //     return i == 2;
+    // }
+
+    bool is_destructor(const sdb::die& func) {
         auto name = func.name();
-        return (name && (name.value().size() > 1) && (name.value()[0] == '~'));
+        return name and
+            name.value().size() > 1 and
+            name.value()[0] == '~';
     }
 
-    bool is_copy_or_move_constructor(const sdb::type& class_type, const sdb::die& func)
-    {
+    bool is_copy_or_move_constructor(
+        const sdb::type& class_type, const sdb::die& func) {
         auto class_name = class_type.get_die().name();
         if (class_name != func.name()) return false;
 
         int i = 0;
-        for (auto child: func.children())
-        {
-            if (child.abbrev_entry()->tag == DW_TAG_formal_parameter)
-            {
-                if (i == 0)
-                {
+        for (auto child : func.children()) {
+            if (child.abbrev_entry()->tag == DW_TAG_formal_parameter) {
+                if (i == 0) {
                     auto type = child[DW_AT_type].as_type();
-                    if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type) return false;
-                    if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type) return false;
-
-                } else if (i == 1) {
-
+                    if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type)
+                        return false;
+                    if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type)
+                        return false;
+                }
+                else if (i == 1) {
                     auto type = child[DW_AT_type].as_type();
                     auto tag = type.get_die().abbrev_entry()->tag;
-                    if ((tag != DW_TAG_reference_type) && (tag != DW_TAG_rvalue_reference_type)) return false;
+                    if (tag != DW_TAG_reference_type and
+                        tag != DW_TAG_rvalue_reference_type)
+                        return false;
                     auto ref = type.get_die()[DW_AT_type].as_type().strip_cv_typedef();
-                    if (ref != class_type) return false;
-
-                } else {
-
+                    if (ref != class_type)
+                        return false;
+                }
+                else {
                     return false;
                 }
             }
             ++i;
         }
-
         return i == 2;
     }
 }
