@@ -278,7 +278,7 @@ namespace
         if (target.get_stack().has_frames() > 0)
         {
             auto& frame = target.get_stack().current_frame();
-            print_source(frame.location.file->path, frame.location.line, 3);
+            print_source(frame.location.file->path, frame.location.line, 5);
 
         } else {
             
