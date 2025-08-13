@@ -215,149 +215,166 @@ namespace
         return classes;
     }
 
-    // bool is_destructor(const sdb::die& func)
-    // {
-    //     auto name = func.name();
-    //     return (name && (name.value().size() > 1) && (name.value()[0] == '~'));
-    // }
-
-    // bool is_copy_or_move_constructor(const sdb::type& class_type, const sdb::die& func)
-    // {
-    //     auto class_name = class_type.get_die().name();
-    //     if (class_name != func.name()) return false;
-
-    //     int i = 0;
-    //     for (auto child: func.children())
-    //     {
-    //         if (child.abbrev_entry()->tag == DW_TAG_formal_parameter)
-    //         {
-    //             if (i == 0)
-    //             {
-    //                 auto type = child[DW_AT_type].as_type();
-    //                 if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type) return false;
-    //                 if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type) return false;
-
-    //             } else if (i == 1) {
-
-    //                 auto type = child[DW_AT_type].as_type();
-    //                 auto tag = type.get_die().abbrev_entry()->tag;
-    //                 if ((tag != DW_TAG_reference_type) && (tag != DW_TAG_rvalue_reference_type)) return false;
-    //                 auto ref = type.get_die()[DW_AT_type].as_type().strip_cv_typedef();
-    //                 if (ref != class_type) return false;
-
-    //             } else {
-
-    //                 return false;
-    //             }
-    //         }
-    //         ++i;
-    //     }
-
-    //     return i == 2;
-    // }
-
-    bool is_destructor(const sdb::die& func) {
+    bool is_destructor(const sdb::die& func)
+    {
         auto name = func.name();
-        return name and
-            name.value().size() > 1 and
-            name.value()[0] == '~';
+        return (name && (name.value().size() > 1) && (name.value()[0] == '~'));
     }
 
-    bool is_copy_or_move_constructor(
-        const sdb::type& class_type, const sdb::die& func) {
+    bool is_copy_or_move_constructor(const sdb::type& class_type, const sdb::die& func)
+    {
         auto class_name = class_type.get_die().name();
         if (class_name != func.name()) return false;
 
         int i = 0;
-        for (auto child : func.children()) {
-            if (child.abbrev_entry()->tag == DW_TAG_formal_parameter) {
-                if (i == 0) {
+        for (auto child: func.children())
+        {
+            if (child.abbrev_entry()->tag == DW_TAG_formal_parameter)
+            {
+                if (i == 0)
+                {
                     auto type = child[DW_AT_type].as_type();
-                    if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type)
-                        return false;
-                    if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type)
-                        return false;
-                }
-                else if (i == 1) {
+                    if (type.get_die().abbrev_entry()->tag != DW_TAG_pointer_type) return false;
+                    if (type.get_die()[DW_AT_type].as_type().strip_cv_typedef() != class_type) return false;
+
+                } else if (i == 1) {
+
                     auto type = child[DW_AT_type].as_type();
                     auto tag = type.get_die().abbrev_entry()->tag;
-                    if (tag != DW_TAG_reference_type and
-                        tag != DW_TAG_rvalue_reference_type)
-                        return false;
+                    if ((tag != DW_TAG_reference_type) && (tag != DW_TAG_rvalue_reference_type)) return false;
                     auto ref = type.get_die()[DW_AT_type].as_type().strip_cv_typedef();
-                    if (ref != class_type)
-                        return false;
-                }
-                else {
+                    if (ref != class_type) return false;
+
+                } else {
+
                     return false;
                 }
             }
             ++i;
         }
+
         return i == 2;
     }
 }
 
-std::size_t sdb::type::byte_size() const
-{
-    if (!byte_size_.has_value()) byte_size_ = compute_byte_size();
+// std::size_t sdb::type::byte_size() const
+// {
+//     if (!byte_size_.has_value()) byte_size_ = compute_byte_size();
 
+//     return *byte_size_;
+// }
+
+// std::size_t sdb::type::compute_byte_size() const
+// {
+//     if (!is_from_dwarf())
+//     {
+//         switch (get_builtin_type())
+//         {
+//             case builtin_type::boolean: return 1;
+
+//             case builtin_type::character: return 1;
+
+//             case builtin_type::integer: return 8;
+
+//             case builtin_type::floating_point: return 8;
+
+//             case builtin_type::string: return 8;
+//         }
+//     }
+
+//     auto& die_ = std::get<sdb::die>(info_);
+
+//     auto tag = die_.abbrev_entry()->tag;
+
+//     if (tag == DW_TAG_pointer_type) return 8;
+
+//     if (tag == DW_TAG_ptr_to_member_type)
+//     {
+//         auto member_type = die_[DW_AT_type].as_type();
+//         if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) return 16;
+//         return 8;
+//     }
+
+//     if (tag == DW_TAG_array_type)
+//     {
+//         auto value_size = die_[DW_AT_type].as_type().byte_size();
+//         for (auto& child: die_.children())
+//             if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
+//                 value_size *= child[DW_AT_upper_bound].as_int() + 1;
+//         return value_size;
+//     }
+
+//     if (die_.contains(DW_AT_byte_size)) return die_[DW_AT_byte_size].as_int();
+
+//     if (die_.contains(DW_AT_type)) return die_[DW_AT_type].as_type().byte_size();
+
+//     return 0;
+// }
+
+// bool sdb::type::is_char_type() const
+// {
+//     auto stripped = strip_cv_typedef().get_die();
+//     if (!(stripped.contains(DW_AT_encoding))) return false;
+//     auto encoding = stripped[DW_AT_encoding].as_int();
+//     return ((stripped.abbrev_entry()->tag == DW_TAG_base_type) && ((encoding == DW_ATE_signed_char) || (encoding == DW_ATE_unsigned_char)));
+// }
+
+std::size_t sdb::type::byte_size() const {
+    if (!byte_size_.has_value())
+        byte_size_ = compute_byte_size();
     return *byte_size_;
 }
 
-std::size_t sdb::type::compute_byte_size() const
-{
-    if (!is_from_dwarf())
-    {
-        switch (get_builtin_type())
-        {
-            case builtin_type::boolean: return 1;
-
-            case builtin_type::character: return 1;
-
-            case builtin_type::integer: return 8;
-
-            case builtin_type::floating_point: return 8;
-
-            case builtin_type::string: return 8;
+std::size_t sdb::type::compute_byte_size() const {
+    if (!is_from_dwarf()) {
+        switch (get_builtin_type()) {
+        case builtin_type::boolean: return 1;
+        case builtin_type::character: return 1;
+        case builtin_type::integer: return 8;
+        case builtin_type::floating_point: return 8;
+        case builtin_type::string: return 8;
         }
     }
 
     auto& die_ = std::get<sdb::die>(info_);
-
     auto tag = die_.abbrev_entry()->tag;
 
-    if (tag == DW_TAG_pointer_type) return 8;
-
-    if (tag == DW_TAG_ptr_to_member_type)
-    {
-        auto member_type = die_[DW_AT_type].as_type();
-        if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) return 16;
+    if (tag == DW_TAG_pointer_type) {
         return 8;
     }
-
-    if (tag == DW_TAG_array_type)
-    {
+    if (tag == DW_TAG_ptr_to_member_type) {
+        auto member_type = die_[DW_AT_type].as_type();
+        if (member_type.get_die().abbrev_entry()->tag == DW_TAG_subroutine_type) {
+            return 16;
+        }
+        return 8;
+    }
+    if (tag == DW_TAG_array_type) {
         auto value_size = die_[DW_AT_type].as_type().byte_size();
-        for (auto& child: die_.children())
-            if (child.abbrev_entry()->tag == DW_TAG_subrange_type)
+        for (auto& child : die_.children()) {
+            if (child.abbrev_entry()->tag == DW_TAG_subrange_type) {
                 value_size *= child[DW_AT_upper_bound].as_int() + 1;
+            }
+        }
         return value_size;
     }
-
-    if (die_.contains(DW_AT_byte_size)) return die_[DW_AT_byte_size].as_int();
-
-    if (die_.contains(DW_AT_type)) return die_[DW_AT_type].as_type().byte_size();
+    if (die_.contains(DW_AT_byte_size)) {
+        return die_[DW_AT_byte_size].as_int();
+    }
+    if (die_.contains(DW_AT_type)) {
+        return die_[DW_AT_type].as_type().byte_size();
+    }
 
     return 0;
 }
 
-bool sdb::type::is_char_type() const
-{
+bool sdb::type::is_char_type() const {
     auto stripped = strip_cv_typedef().get_die();
-    if (!(stripped.contains(DW_AT_encoding))) return false;
+    if (!stripped.contains(DW_AT_encoding)) return false;
     auto encoding = stripped[DW_AT_encoding].as_int();
-    return ((stripped.abbrev_entry()->tag == DW_TAG_base_type) && ((encoding == DW_ATE_signed_char) || (encoding == DW_ATE_unsigned_char)));
+    return stripped.abbrev_entry()->tag == DW_TAG_base_type and
+        encoding == DW_ATE_signed_char or
+        encoding == DW_ATE_unsigned_char;
 }
 
 std::string sdb::typed_data::visualize(const sdb::process& proc, int depth) const
