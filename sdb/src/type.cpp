@@ -139,78 +139,82 @@ namespace
         }
     }
 
-    // sdb::parameter_class merge_parameter_classes(sdb::parameter_class lhs, sdb::parameter_class rhs)
-    // {
-    //     using namespace sdb;
-
-    //     if (lhs == rhs) return lhs;
-
-    //     if (lhs == parameter_class::no_class) return rhs;
-    //     if (rhs == parameter_class::no_class) return lhs;
-
-    //     if ((lhs == parameter_class::memory) || (rhs == parameter_class::memory)) return parameter_class::memory;
-
-    //     if ((lhs == parameter_class::integer) || (rhs == parameter_class::integer)) return parameter_class::integer;
-
-    //     if ((lhs == parameter_class::x87) || (lhs == parameter_class::x87up) || (lhs == parameter_class::complex_x87) ||
-    //         (rhs == parameter_class::x87) || (rhs == parameter_class::x87up) || (rhs == parameter_class::complex_x87))
-    //         return parameter_class::memory;
-
-    //     return parameter_class::sse;
-    // }
-
-    sdb::parameter_class merge_parameter_classes(
-        sdb::parameter_class lhs, sdb::parameter_class rhs) {
+    sdb::parameter_class merge_parameter_classes(sdb::parameter_class lhs, sdb::parameter_class rhs)
+    {
         using namespace sdb;
+
         if (lhs == rhs) return lhs;
 
         if (lhs == parameter_class::no_class) return rhs;
         if (rhs == parameter_class::no_class) return lhs;
 
-        if (lhs == parameter_class::memory or
-            rhs == parameter_class::memory) {
-            return parameter_class::memory;
-        }
+        if ((lhs == parameter_class::memory) || (rhs == parameter_class::memory)) return parameter_class::memory;
 
-        if (lhs == parameter_class::integer or
-            rhs == parameter_class::integer) {
-            return parameter_class::integer;
-        }
+        if ((lhs == parameter_class::integer) || (rhs == parameter_class::integer)) return parameter_class::integer;
 
-        if (lhs == parameter_class::x87 or
-            rhs == parameter_class::x87 or
-            lhs == parameter_class::x87up or
-            rhs == parameter_class::x87up or
-            lhs == parameter_class::complex_x87 or
-            rhs == parameter_class::complex_x87) {
+        if ((lhs == parameter_class::x87) || (lhs == parameter_class::x87up) || (lhs == parameter_class::complex_x87) ||
+            (rhs == parameter_class::x87) || (rhs == parameter_class::x87up) || (rhs == parameter_class::complex_x87))
             return parameter_class::memory;
-        }
 
         return parameter_class::sse;
     }
 
+    // void classify_class_field(const sdb::type& type, const sdb::die& field, std::array<sdb::parameter_class, 2>& classes, int bit_offset)
+    // {
+    //     auto bitfield_info = field.get_bitfield_information(type.byte_size());
+    //     auto field_type = field[DW_AT_type].as_type();
 
-    void classify_class_field(const sdb::type& type, const sdb::die& field, std::array<sdb::parameter_class, 2>& classes, int bit_offset)
-    {
+    //     auto bit_size = bitfield_info ? bitfield_info->bit_size : field_type.byte_size() * 8;
+    //     auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location].as_int() * 8 + bit_offset;
+    //     auto eightbyte_index = current_bit_offset / 64;
+
+    //     if (field_type.is_class_type())
+    //     {
+    //         for (auto child: field_type.get_die().children())
+    //             if ((child.abbrev_entry()->tag == DW_TAG_member) && 
+    //                 child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
+    //                 classify_class_field(type, child, classes, current_bit_offset);
+
+    //     } else {
+
+    //         auto field_classes = field_type.get_parameter_classes();
+    //         classes[eightbyte_index] = merge_parameter_classes(classes[eightbyte_index], field_classes[0]);
+    //         if (eightbyte_index == 0) classes[1] = merge_parameter_classes(classes[1], field_classes[1]);
+    //     }
+    // }
+
+    void classify_class_field(
+        const sdb::type& type,
+        const sdb::die& field,
+        std::array<sdb::parameter_class, 2>& classes,
+        int bit_offset) {
         auto bitfield_info = field.get_bitfield_information(type.byte_size());
         auto field_type = field[DW_AT_type].as_type();
 
-        auto bit_size = bitfield_info ? bitfield_info->bit_size : field_type.byte_size() * 8;
-        auto current_bit_offset = bitfield_info ? bitfield_info->bit_offset + bit_offset : field[DW_AT_data_member_location].as_int() * 8 + bit_offset;
+        auto bit_size = bitfield_info ?
+            bitfield_info->bit_size :
+            field_type.byte_size() * 8;
+        auto current_bit_offset = bitfield_info ?
+            bitfield_info->bit_offset + bit_offset :
+            field[DW_AT_data_member_location].as_int() * 8 + bit_offset;
         auto eightbyte_index = current_bit_offset / 64;
 
-        if (field_type.is_class_type())
-        {
-            for (auto child: field_type.get_die().children())
-                if ((child.abbrev_entry()->tag == DW_TAG_member) && 
-                    child.contains(DW_AT_data_member_location) || child.contains(DW_AT_data_bit_offset))
+        if (field_type.is_class_type()) {
+            for (auto child : field_type.get_die().children()) {
+                if (child.abbrev_entry()->tag == DW_TAG_member and
+                    child.contains(DW_AT_data_member_location) or
+                    child.contains(DW_AT_data_bit_offset)) {
                     classify_class_field(type, child, classes, current_bit_offset);
-
-        } else {
-
+                }
+            }
+        }
+        else {
             auto field_classes = field_type.get_parameter_classes();
-            classes[eightbyte_index] = merge_parameter_classes(classes[eightbyte_index], field_classes[0]);
-            if (eightbyte_index == 0) classes[1] = merge_parameter_classes(classes[1], field_classes[1]);
+            classes[eightbyte_index] = merge_parameter_classes(
+                classes[eightbyte_index], field_classes[0]);
+            if (eightbyte_index == 0) {
+                classes[1] = merge_parameter_classes(classes[1], field_classes[1]);
+            }
         }
     }
 
